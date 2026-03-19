@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import PageContainer from '../components/layout/PageContainer';
 import TrainingMatrix from '../components/matrix/TrainingMatrix';
 import MatrixLegend from '../components/matrix/MatrixLegend';
+import ShiftModal from '../components/matrix/ShiftModal';
 import Button from '../components/shared/Button';
 import { STATUS, CATEGORIES } from '../constants/theme';
 import styles from './MatrixPage.module.css';
@@ -10,9 +11,17 @@ import styles from './MatrixPage.module.css';
 const ALL = 'All';
 
 export default function MatrixPage() {
-  const { trainees, positions, recordMap, upsertRecord } = useAppContext();
+  const {
+    trainees, positions, recordMap, shifts,
+    upsertRecord, upsertShift, getShiftsForRecord,
+    deriveStatus, getCompletedShiftCount,
+  } = useAppContext();
+
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(ALL);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTrainee, setSelectedTrainee] = useState(null);
+  const [selectedPosition, setSelectedPosition] = useState(null);
 
   const filteredTrainees = useMemo(
     () => trainees.filter((t) => t.name.toLowerCase().includes(search.toLowerCase())),
@@ -24,7 +33,7 @@ export default function MatrixPage() {
     [positions, categoryFilter]
   );
 
-  // Stats
+  // Stats derived from shifts
   const stats = useMemo(() => {
     const total = trainees.length * positions.length;
     if (total === 0) return null;
@@ -32,30 +41,39 @@ export default function MatrixPage() {
     let inProgress = 0;
     trainees.forEach((t) => {
       positions.forEach((p) => {
-        const r = recordMap.get(`${t.id}::${p.id}`);
-        if (r?.status === STATUS.TRAINED) trained++;
-        else if (r?.status === STATUS.IN_PROGRESS) inProgress++;
+        const record = recordMap.get(`${t.id}::${p.id}`);
+        const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+        const status = deriveStatus(t.id, p.id, required);
+        if (status === STATUS.TRAINED) trained++;
+        else if (status === STATUS.IN_PROGRESS) inProgress++;
       });
     });
     const pct = total > 0 ? Math.round((trained / total) * 100) : 0;
     return { total, trained, inProgress, pct };
-  }, [trainees, positions, recordMap]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainees, positions, recordMap, deriveStatus]);
 
-  function handleStatusChange(traineeId, positionId, nextStatus) {
-    upsertRecord(traineeId, positionId, {
-      status: nextStatus,
-      trainedDate: nextStatus === STATUS.TRAINED ? new Date().toISOString().split('T')[0] : null,
-    });
+  function handleCellClick(trainee, position) {
+    setSelectedTrainee(trainee);
+    setSelectedPosition(position);
+    setModalOpen(true);
+  }
+
+  function handleUpsertShift(traineeId, positionId, shiftNumber, fields) {
+    upsertShift(traineeId, positionId, shiftNumber, fields);
   }
 
   function exportCSV() {
     const headers = ['Trainee', 'Role', ...positions.map((p) => p.name)];
     const rows = trainees.map((t) => {
       const cells = positions.map((p) => {
-        const r = recordMap.get(`${t.id}::${p.id}`);
-        if (!r || r.status === STATUS.NOT_STARTED) return 'Not Started';
-        if (r.status === STATUS.IN_PROGRESS) return 'In Progress';
-        return 'Trained';
+        const record = recordMap.get(`${t.id}::${p.id}`);
+        const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+        const completed = getCompletedShiftCount(t.id, p.id);
+        const status = deriveStatus(t.id, p.id, required);
+        if (status === STATUS.TRAINED) return `Trained (${completed}/${required})`;
+        if (status === STATUS.IN_PROGRESS) return `In Progress (${completed}/${required})`;
+        return 'Not Started';
       });
       return [t.name, t.role, ...cells];
     });
@@ -68,6 +86,13 @@ export default function MatrixPage() {
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  const modalShifts = selectedTrainee && selectedPosition
+    ? getShiftsForRecord(selectedTrainee.id, selectedPosition.id)
+    : [];
+  const modalRecord = selectedTrainee && selectedPosition
+    ? recordMap.get(`${selectedTrainee.id}::${selectedPosition.id}`) || null
+    : null;
 
   return (
     <PageContainer className={styles.container}>
@@ -122,7 +147,21 @@ export default function MatrixPage() {
         trainees={filteredTrainees}
         positions={filteredPositions}
         recordMap={recordMap}
-        onStatusChange={handleStatusChange}
+        shifts={shifts}
+        deriveStatus={deriveStatus}
+        getCompletedShiftCount={getCompletedShiftCount}
+        onCellClick={handleCellClick}
+      />
+
+      <ShiftModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        trainee={selectedTrainee}
+        position={selectedPosition}
+        record={modalRecord}
+        shifts={modalShifts}
+        onUpsertShift={handleUpsertShift}
+        onUpsertRecord={upsertRecord}
       />
     </PageContainer>
   );

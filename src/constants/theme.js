@@ -39,4 +39,4 @@ export const STATUS_CYCLE = {
 
 export const ROLES = ['Team Member', 'Trainer', 'Team Lead'];
 
-export const CATEGORIES = ['FOH', 'BOH', 'Drive Thru', 'Other'];
+export const CATEGORIES = ['FOH', 'Drive Thru', 'Other'];

@@ -2,8 +2,7 @@ import MatrixCell from './MatrixCell';
 import EmptyState from '../shared/EmptyState';
 import styles from './TrainingMatrix.module.css';
 
-export default function TrainingMatrix({ trainees, positions, recordMap, onStatusChange }) {
-  // Pre-build lookup from context recordMap
+export default function TrainingMatrix({ trainees, positions, recordMap, shifts, deriveStatus, getCompletedShiftCount, onCellClick }) {
   function getRecord(traineeId, positionId) {
     return recordMap.get(`${traineeId}::${positionId}`) || null;
   }
@@ -67,15 +66,23 @@ export default function TrainingMatrix({ trainees, positions, recordMap, onStatu
                   </div>
                 </div>
               </td>
-              {positions.map((pos) => (
-                <MatrixCell
-                  key={pos.id}
-                  trainee={trainee}
-                  position={pos}
-                  record={getRecord(trainee.id, pos.id)}
-                  onStatusChange={onStatusChange}
-                />
-              ))}
+              {positions.map((pos) => {
+                const record = getRecord(trainee.id, pos.id);
+                const required = record?.requiredShifts ?? pos.requiredShifts ?? 3;
+                const completed = getCompletedShiftCount(trainee.id, pos.id);
+                const status = deriveStatus(trainee.id, pos.id, required);
+                return (
+                  <MatrixCell
+                    key={pos.id}
+                    trainee={trainee}
+                    position={pos}
+                    completedCount={completed}
+                    requiredShifts={required}
+                    status={status}
+                    onCellClick={onCellClick}
+                  />
+                );
+              })}
             </tr>
           ))}
         </tbody>

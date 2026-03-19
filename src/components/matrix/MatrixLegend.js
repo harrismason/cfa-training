@@ -16,7 +16,7 @@ export default function MatrixLegend() {
           {icon} {STATUS_LABELS[status]}
         </span>
       ))}
-      <span className={styles.hint}>Click a cell to cycle status</span>
+      <span className={styles.hint}>Click a cell to track practice shifts</span>
     </div>
   );
 }

@@ -9,6 +9,7 @@ export function AppProvider({ children }) {
   const [trainees, setTrainees] = useLocalStorage('cfa_trainees', []);
   const [positions, setPositions] = useLocalStorage('cfa_positions', SEED_POSITIONS);
   const [records, setRecords] = useLocalStorage('cfa_records', []);
+  const [shifts, setShifts] = useLocalStorage('cfa_shifts', []);
 
   // --- Trainee mutations ---
   function addTrainee(data) {
@@ -30,12 +31,14 @@ export function AppProvider({ children }) {
   function deleteTrainee(id) {
     setTrainees((prev) => prev.filter((t) => t.id !== id));
     setRecords((prev) => prev.filter((r) => r.traineeId !== id));
+    setShifts((prev) => prev.filter((s) => s.traineeId !== id));
   }
 
   // --- Position mutations ---
   function addPosition(data) {
     const newPosition = {
       id: crypto.randomUUID(),
+      requiredShifts: 3,
       ...data,
       sortOrder: positions.length + 1,
       createdAt: new Date().toISOString(),
@@ -53,6 +56,7 @@ export function AppProvider({ children }) {
   function deletePosition(id) {
     setPositions((prev) => prev.filter((p) => p.id !== id));
     setRecords((prev) => prev.filter((r) => r.positionId !== id));
+    setShifts((prev) => prev.filter((s) => s.positionId !== id));
   }
 
   // --- Record mutations ---
@@ -74,9 +78,6 @@ export function AppProvider({ children }) {
             id: crypto.randomUUID(),
             traineeId,
             positionId,
-            status: STATUS.NOT_STARTED,
-            trainedDate: null,
-            trainerId: null,
             notes: '',
             ...fields,
             updatedAt: new Date().toISOString(),
@@ -84,6 +85,58 @@ export function AppProvider({ children }) {
         ];
       }
     });
+  }
+
+  // --- Shift mutations ---
+  function upsertShift(traineeId, positionId, shiftNumber, fields) {
+    setShifts((prev) => {
+      const existing = prev.find(
+        (s) => s.traineeId === traineeId && s.positionId === positionId && s.shiftNumber === shiftNumber
+      );
+      if (existing) {
+        return prev.map((s) =>
+          s.traineeId === traineeId && s.positionId === positionId && s.shiftNumber === shiftNumber
+            ? { ...s, ...fields }
+            : s
+        );
+      } else {
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            traineeId,
+            positionId,
+            shiftNumber,
+            completedDate: null,
+            notes: '',
+            ...fields,
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      }
+    });
+  }
+
+  function getShiftsForRecord(traineeId, positionId) {
+    return shifts.filter(
+      (s) => s.traineeId === traineeId && s.positionId === positionId
+    );
+  }
+
+  // Derive status from completed shifts vs required
+  function deriveStatus(traineeId, positionId, requiredShifts) {
+    const completed = shifts.filter(
+      (s) => s.traineeId === traineeId && s.positionId === positionId && s.completedDate
+    ).length;
+    if (completed === 0) return STATUS.NOT_STARTED;
+    if (completed >= requiredShifts) return STATUS.TRAINED;
+    return STATUS.IN_PROGRESS;
+  }
+
+  function getCompletedShiftCount(traineeId, positionId) {
+    return shifts.filter(
+      (s) => s.traineeId === traineeId && s.positionId === positionId && s.completedDate
+    ).length;
   }
 
   // O(1) lookup map: "traineeId::positionId" -> record
@@ -108,6 +161,7 @@ export function AppProvider({ children }) {
     positions: sortedPositions,
     records,
     recordMap,
+    shifts,
     addTrainee,
     updateTrainee,
     deleteTrainee,
@@ -116,6 +170,10 @@ export function AppProvider({ children }) {
     deletePosition,
     upsertRecord,
     getRecord,
+    upsertShift,
+    getShiftsForRecord,
+    deriveStatus,
+    getCompletedShiftCount,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
