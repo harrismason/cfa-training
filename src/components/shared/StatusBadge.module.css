@@ -1,0 +1,23 @@
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.not_started {
+  background-color: var(--color-not-started-light);
+  color: var(--color-not-started);
+}
+
+.in_progress {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.trained {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}

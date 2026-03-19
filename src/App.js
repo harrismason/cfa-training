@@ -1,0 +1,24 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
+import NavBar from './components/layout/NavBar';
+import MatrixPage from './pages/MatrixPage';
+import TraineesPage from './pages/TraineesPage';
+import PositionsPage from './pages/PositionsPage';
+
+function App() {
+  return (
+    <div className="appLayout">
+      <NavBar />
+      <main className="appMain">
+        <Routes>
+          <Route path="/" element={<Navigate to="/matrix" replace />} />
+          <Route path="/matrix" element={<MatrixPage />} />
+          <Route path="/trainees" element={<TraineesPage />} />
+          <Route path="/positions" element={<PositionsPage />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
+export default App;

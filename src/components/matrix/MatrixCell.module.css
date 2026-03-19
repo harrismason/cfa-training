@@ -1,0 +1,63 @@
+.cell {
+  width: 56px;
+  height: 48px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-collapse: collapse;
+  position: relative;
+  transition: background-color 0.12s;
+  user-select: none;
+}
+
+.cell:hover {
+  filter: brightness(0.92);
+}
+
+.not_started {
+  background-color: #FAFAFA;
+}
+
+.in_progress {
+  background-color: var(--color-warning-light);
+}
+
+.trained {
+  background-color: var(--color-success-light);
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.1rem;
+}
+
+.iconEmpty {
+  color: var(--color-not-started);
+}
+
+.iconProgress {
+  color: var(--color-warning);
+}
+
+.iconTrained {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-text);
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
