@@ -52,6 +52,14 @@ export default function NavBar() {
           Dashboard
         </NavLink>
         <NavLink
+          to="/analytics"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.linkActive : ''}`
+          }
+        >
+          Analytics
+        </NavLink>
+        <NavLink
           to="/matrix"
           className={({ isActive }) =>
             `${styles.link} ${isActive ? styles.linkActive : ''}`

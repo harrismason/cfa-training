@@ -8,6 +8,7 @@ import PositionsPage from './pages/PositionsPage';
 import TrainersPage from './pages/TrainersPage';
 import PathsPage from './pages/PathsPage';
 import PlannerPage from './pages/PlannerPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/matrix" element={<MatrixPage />} />
           <Route path="/trainees" element={<TraineesPage />} />
           <Route path="/trainers" element={<TrainersPage />} />
