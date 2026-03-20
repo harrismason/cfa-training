@@ -11,7 +11,7 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export default function TraineeCard({ trainee, onEdit, onDelete }) {
+export default function TraineeCard({ trainee, onEdit, onDelete, onReport }) {
   return (
     <div className={styles.card}>
       <div className={styles.avatar}>{getInitials(trainee.name)}</div>
@@ -26,6 +26,7 @@ export default function TraineeCard({ trainee, onEdit, onDelete }) {
         {trainee.notes && <div className={styles.notes}>{trainee.notes}</div>}
       </div>
       <div className={styles.actions}>
+        <Button variant="ghost" size="sm" onClick={() => onReport(trainee)}>📋 Report</Button>
         <Button variant="ghost" size="sm" onClick={() => onEdit(trainee)}>Edit</Button>
         <Button variant="danger" size="sm" onClick={() => onDelete(trainee)}>Delete</Button>
       </div>

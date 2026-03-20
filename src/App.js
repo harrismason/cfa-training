@@ -1,9 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import NavBar from './components/layout/NavBar';
+import DashboardPage from './pages/DashboardPage';
 import MatrixPage from './pages/MatrixPage';
 import TraineesPage from './pages/TraineesPage';
 import PositionsPage from './pages/PositionsPage';
+import TrainersPage from './pages/TrainersPage';
+import PathsPage from './pages/PathsPage';
+import PlannerPage from './pages/PlannerPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -11,10 +17,16 @@ function App() {
       <NavBar />
       <main className="appMain">
         <Routes>
-          <Route path="/" element={<Navigate to="/matrix" replace />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/matrix" element={<MatrixPage />} />
           <Route path="/trainees" element={<TraineesPage />} />
+          <Route path="/trainers" element={<TrainersPage />} />
+          <Route path="/paths" element={<PathsPage />} />
+          <Route path="/planner" element={<PlannerPage />} />
           <Route path="/positions" element={<PositionsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>
     </div>

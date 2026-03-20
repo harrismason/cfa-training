@@ -90,3 +90,10 @@
   border-color: var(--color-primary);
   color: var(--color-white);
 }
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}

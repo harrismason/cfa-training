@@ -27,6 +27,7 @@
 .not_started { color: var(--color-not-started); }
 .in_progress { color: var(--color-warning); }
 .trained { color: var(--color-success); }
+.needs_recert { color: var(--color-recert, #7B1FA2); }
 
 .hint {
   margin-left: auto;

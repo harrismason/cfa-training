@@ -5,6 +5,7 @@ const ITEMS = [
   { status: STATUS.NOT_STARTED, icon: '○' },
   { status: STATUS.IN_PROGRESS, icon: '◐' },
   { status: STATUS.TRAINED, icon: '●' },
+  { status: STATUS.NEEDS_RECERT, icon: '↻' },
 ];
 
 export default function MatrixLegend() {

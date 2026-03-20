@@ -86,7 +86,7 @@
 
 .traineeInfo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.625rem;
 }
 
@@ -114,7 +114,33 @@
   max-width: 130px;
 }
 
+.traineeDetails {
+  flex: 1;
+  min-width: 0;
+}
+
 .traineeRole {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.miniBarTrack {
+  margin-top: 4px;
+  height: 4px;
+  background: #e8e8e8;
+  border-radius: 2px;
+  overflow: hidden;
+  max-width: 120px;
+}
+
+.miniBarFill {
+  height: 100%;
+  background: var(--color-primary, #E4002B);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.miniBarComplete {
+  background: #2E7D32;
 }

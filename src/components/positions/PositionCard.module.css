@@ -44,6 +44,12 @@
   font-weight: 500;
 }
 
+.recert {
+  font-size: var(--font-size-xs);
+  color: var(--color-recert, #7B1FA2);
+  font-weight: 500;
+}
+
 .description {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);

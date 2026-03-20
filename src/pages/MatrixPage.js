@@ -4,6 +4,8 @@ import PageContainer from '../components/layout/PageContainer';
 import TrainingMatrix from '../components/matrix/TrainingMatrix';
 import MatrixLegend from '../components/matrix/MatrixLegend';
 import ShiftModal from '../components/matrix/ShiftModal';
+import InsightsPanel from '../components/matrix/InsightsPanel';
+import BulkAssignModal from '../components/matrix/BulkAssignModal';
 import Button from '../components/shared/Button';
 import { STATUS, CATEGORIES } from '../constants/theme';
 import styles from './MatrixPage.module.css';
@@ -12,7 +14,7 @@ const ALL = 'All';
 
 export default function MatrixPage() {
   const {
-    trainees, positions, recordMap, shifts,
+    trainees, positions, records, recordMap, shifts,
     upsertRecord, upsertShift, getShiftsForRecord,
     deriveStatus, getCompletedShiftCount,
   } = useAppContext();
@@ -22,6 +24,8 @@ export default function MatrixPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTrainee, setSelectedTrainee] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState(null);
+  const [insightsOpen, setInsightsOpen] = useState(true);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const filteredTrainees = useMemo(
     () => trainees.filter((t) => t.name.toLowerCase().includes(search.toLowerCase())),
@@ -33,25 +37,70 @@ export default function MatrixPage() {
     [positions, categoryFilter]
   );
 
-  // Stats derived from shifts
-  const stats = useMemo(() => {
+  // Stats: overall + per-trainee + per-position
+  const { stats, traineeStats, positionStats } = useMemo(() => {
     const total = trainees.length * positions.length;
-    if (total === 0) return null;
+    if (total === 0) return { stats: null, traineeStats: [], positionStats: [] };
+
     let trained = 0;
     let inProgress = 0;
-    trainees.forEach((t) => {
+
+    const tStats = trainees.map((t) => {
+      let tTrained = 0;
       positions.forEach((p) => {
         const record = recordMap.get(`${t.id}::${p.id}`);
         const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
-        const status = deriveStatus(t.id, p.id, required);
-        if (status === STATUS.TRAINED) trained++;
-        else if (status === STATUS.IN_PROGRESS) inProgress++;
+        const s = deriveStatus(t.id, p.id, required);
+        if (s === STATUS.TRAINED) { tTrained++; trained++; }
+        else if (s === STATUS.IN_PROGRESS) inProgress++;
       });
-    });
-    const pct = total > 0 ? Math.round((trained / total) * 100) : 0;
-    return { total, trained, inProgress, pct };
+      const tPct = positions.length > 0 ? Math.round((tTrained / positions.length) * 100) : 0;
+      return { trainee: t, trained: tTrained, total: positions.length, pct: tPct };
+    }).sort((a, b) => b.pct - a.pct);
+
+    const pStats = positions.map((p) => {
+      let pTrained = 0;
+      trainees.forEach((t) => {
+        const record = recordMap.get(`${t.id}::${p.id}`);
+        const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+        if (deriveStatus(t.id, p.id, required) === STATUS.TRAINED) pTrained++;
+      });
+      const pPct = trainees.length > 0 ? Math.round((pTrained / trainees.length) * 100) : 0;
+      return { position: p, trained: pTrained, total: trainees.length, pct: pPct };
+    }).sort((a, b) => a.pct - b.pct);
+
+    const pct = Math.round((trained / total) * 100);
+    return {
+      stats: { total, trained, inProgress, pct },
+      traineeStats: tStats,
+      positionStats: pStats,
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trainees, positions, recordMap, deriveStatus]);
+
+  // Trainees actively assigned for training (tagged + not yet TRAINED/NEEDS_RECERT)
+  const assignedForTraining = useMemo(() => {
+    return records
+      .filter((r) => r.tag === 'needs_training')
+      .map((r) => {
+        const trainee = trainees.find((t) => t.id === r.traineeId);
+        const pos = positions.find((p) => p.id === r.positionId);
+        if (!trainee || !pos) return null;
+        const required = r.requiredShifts ?? pos.requiredShifts ?? 3;
+        const status = deriveStatus(r.traineeId, r.positionId, required);
+        if (status === STATUS.TRAINED || status === STATUS.NEEDS_RECERT) return null;
+        return { trainee, position: pos, status };
+      })
+      .filter(Boolean);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [records, trainees, positions, deriveStatus]);
+
+  // Trainee completion % map for mini bars
+  const traineeCompletionMap = useMemo(() => {
+    const map = new Map();
+    traineeStats.forEach(({ trainee, pct }) => map.set(trainee.id, pct));
+    return map;
+  }, [traineeStats]);
 
   function handleCellClick(trainee, position) {
     setSelectedTrainee(trainee);
@@ -63,6 +112,10 @@ export default function MatrixPage() {
     upsertShift(traineeId, positionId, shiftNumber, fields);
   }
 
+  function handleBulkAssign(positionId, tag, traineeIds) {
+    traineeIds.forEach((tid) => upsertRecord(tid, positionId, { tag }));
+  }
+
   function exportCSV() {
     const headers = ['Trainee', 'Role', ...positions.map((p) => p.name)];
     const rows = trainees.map((t) => {
@@ -72,6 +125,7 @@ export default function MatrixPage() {
         const completed = getCompletedShiftCount(t.id, p.id);
         const status = deriveStatus(t.id, p.id, required);
         if (status === STATUS.TRAINED) return `Trained (${completed}/${required})`;
+        if (status === STATUS.NEEDS_RECERT) return `Needs Recert (${completed}/${required})`;
         if (status === STATUS.IN_PROGRESS) return `In Progress (${completed}/${required})`;
         return 'Not Started';
       });
@@ -115,9 +169,14 @@ export default function MatrixPage() {
             </div>
           )}
         </div>
-        <Button variant="secondary" onClick={exportCSV} disabled={!trainees.length || !positions.length}>
-          ↓ Export CSV
-        </Button>
+        <div className={styles.headerActions}>
+          <Button variant="secondary" onClick={() => setBulkOpen(true)} disabled={!trainees.length || !positions.length}>
+            🎯 Bulk Assign
+          </Button>
+          <Button variant="secondary" onClick={exportCSV} disabled={!trainees.length || !positions.length}>
+            ↓ Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className={styles.filters}>
@@ -141,6 +200,15 @@ export default function MatrixPage() {
         </div>
       </div>
 
+      <InsightsPanel
+        isOpen={insightsOpen}
+        onToggle={() => setInsightsOpen((o) => !o)}
+        stats={stats}
+        traineeStats={traineeStats}
+        positionStats={positionStats}
+        assignedForTraining={assignedForTraining}
+      />
+
       <MatrixLegend />
 
       <TrainingMatrix
@@ -150,6 +218,7 @@ export default function MatrixPage() {
         shifts={shifts}
         deriveStatus={deriveStatus}
         getCompletedShiftCount={getCompletedShiftCount}
+        traineeCompletionMap={traineeCompletionMap}
         onCellClick={handleCellClick}
       />
 
@@ -162,6 +231,15 @@ export default function MatrixPage() {
         shifts={modalShifts}
         onUpsertShift={handleUpsertShift}
         onUpsertRecord={upsertRecord}
+        trainees={trainees}
+      />
+
+      <BulkAssignModal
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        trainees={trainees}
+        positions={positions}
+        onBulkAssign={handleBulkAssign}
       />
     </PageContainer>
   );

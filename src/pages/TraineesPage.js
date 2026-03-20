@@ -3,9 +3,11 @@ import { useAppContext } from '../context/AppContext';
 import PageContainer from '../components/layout/PageContainer';
 import TraineeList from '../components/trainees/TraineeList';
 import TraineeForm from '../components/trainees/TraineeForm';
+import TraineeReport from '../components/trainees/TraineeReport';
 import Modal from '../components/shared/Modal';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import Button from '../components/shared/Button';
+import CsvImportModal from '../components/trainees/CsvImportModal';
 import styles from './TraineesPage.module.css';
 
 export default function TraineesPage() {
@@ -13,7 +15,9 @@ export default function TraineesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTrainee, setEditingTrainee] = useState(null);
   const [deletingTrainee, setDeletingTrainee] = useState(null);
+  const [reportTrainee, setReportTrainee] = useState(null);
   const [search, setSearch] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = trainees.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -55,7 +59,10 @@ export default function TraineesPage() {
           <h1 className={styles.title}>Trainees</h1>
           <p className={styles.subtitle}>{trainees.length} team member{trainees.length !== 1 ? 's' : ''}</p>
         </div>
-        <Button variant="primary" onClick={handleAdd}>+ Add Trainee</Button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Button variant="secondary" onClick={() => setImportOpen(true)}>↑ Import CSV</Button>
+          <Button variant="primary" onClick={handleAdd}>+ Add Trainee</Button>
+        </div>
       </div>
 
       {trainees.length > 0 && (
@@ -75,6 +82,7 @@ export default function TraineesPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAdd={handleAdd}
+        onReport={(t) => setReportTrainee(t)}
       />
 
       <Modal
@@ -95,6 +103,18 @@ export default function TraineesPage() {
         onConfirm={confirmDelete}
         title="Delete Trainee"
         message={`Are you sure you want to delete "${deletingTrainee?.name}"? This will also remove all their training records.`}
+      />
+
+      <TraineeReport
+        isOpen={!!reportTrainee}
+        onClose={() => setReportTrainee(null)}
+        trainee={reportTrainee}
+      />
+
+      <CsvImportModal
+        isOpen={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImport={(rows) => { rows.forEach(r => addTrainee(r)); }}
       />
     </PageContainer>
   );

@@ -1,0 +1,234 @@
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.toggle:hover {
+  background: var(--color-surface-hover, #f5f5f5);
+}
+
+.toggleIcon {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.toggleLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.toggleSummary {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-left: 4px;
+}
+
+.body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.section {
+  padding-top: 14px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+/* Overall bar */
+.overallRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bigBarTrack {
+  flex: 1;
+  height: 14px;
+  background: #e8e8e8;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.bigBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary, #E4002B) 0%, #2E7D32 100%);
+  border-radius: 7px;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+
+.bigBarPct {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.overallCounts {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.countTrained {
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+.countProgress {
+  color: #F57C00;
+  font-weight: 600;
+}
+
+.countTotal {
+  color: var(--color-text-secondary);
+}
+
+/* Two-column layout below overall bar */
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+@media (max-width: 1000px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Needs attention */
+.allGood {
+  font-size: 12px;
+  color: #2E7D32;
+  margin: 0;
+}
+
+.attentionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.attentionItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.attentionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary, #E4002B);
+  flex-shrink: 0;
+}
+
+.assignedDot {
+  background: #E53935;
+}
+
+.attentionName {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.attentionCat {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+/* Bar lists */
+.barList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.barItemName {
+  width: 110px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-primary);
+}
+
+.barTrack {
+  flex: 1;
+  height: 8px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-primary, #E4002B);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.barFillComplete {
+  background: #2E7D32;
+}
+
+.barItemCount {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  min-width: 28px;
+  text-align: right;
+}
