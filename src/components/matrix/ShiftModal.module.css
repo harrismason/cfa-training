@@ -296,3 +296,83 @@
   font-weight: 400;
   opacity: 0.9;
 }
+
+/* Competency checklist */
+.competencies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.competenciesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.competenciesLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.competenciesCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.compList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.compItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  transition: background-color 0.1s;
+  user-select: none;
+}
+
+.compItem:hover {
+  background: var(--color-white);
+}
+
+.compChecked {
+  background: var(--color-success-light);
+  border-color: #A5D6A7;
+  color: var(--color-text);
+}
+
+.compCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--color-border);
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.compCheckboxChecked {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}

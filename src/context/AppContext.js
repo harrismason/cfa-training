@@ -10,6 +10,8 @@ export function AppProvider({ children }) {
   const [positions, setPositions] = useLocalStorage('cfa_positions', SEED_POSITIONS);
   const [records, setRecords] = useLocalStorage('cfa_records', []);
   const [shifts, setShifts] = useLocalStorage('cfa_shifts', []);
+  const [goals, setGoals] = useLocalStorage('cfa_goals', []);
+  const [paths, setPaths] = useLocalStorage('cfa_paths', []);
 
   // --- Undo stack ---
   const undoStackRef = useRef([]);
@@ -18,7 +20,7 @@ export function AppProvider({ children }) {
   function pushUndo() {
     undoStackRef.current = [
       ...undoStackRef.current.slice(-19),
-      { trainees, positions, records, shifts },
+      { trainees, positions, records, shifts, goals, paths },
     ];
     setCanUndo(true);
   }
@@ -31,6 +33,8 @@ export function AppProvider({ children }) {
     setPositions(snapshot.positions);
     setRecords(snapshot.records);
     setShifts(snapshot.shifts);
+    if (snapshot.goals) setGoals(snapshot.goals);
+    if (snapshot.paths) setPaths(snapshot.paths);
     setCanUndo(undoStackRef.current.length > 0);
   }
 
@@ -154,6 +158,56 @@ export function AppProvider({ children }) {
     );
   }
 
+  // --- Backup / Restore ---
+  function exportData() {
+    const data = { trainees, positions, records, shifts, goals, paths, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cfa-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(data) {
+    pushUndo();
+    if (data.trainees) setTrainees(data.trainees);
+    if (data.positions) setPositions(data.positions);
+    if (data.records) setRecords(data.records);
+    if (data.shifts) setShifts(data.shifts);
+    if (data.goals) setGoals(data.goals);
+    if (data.paths) setPaths(data.paths);
+  }
+
+  // --- Goal mutations ---
+  function addGoal(data) {
+    pushUndo();
+    setGoals(prev => [...prev, { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }]);
+  }
+  function updateGoal(id, data) {
+    pushUndo();
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, ...data } : g));
+  }
+  function deleteGoal(id) {
+    pushUndo();
+    setGoals(prev => prev.filter(g => g.id !== id));
+  }
+
+  // --- Path mutations ---
+  function addPath(data) {
+    pushUndo();
+    setPaths(prev => [...prev, { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() }]);
+  }
+  function updatePath(id, data) {
+    pushUndo();
+    setPaths(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  }
+  function deletePath(id) {
+    pushUndo();
+    setPaths(prev => prev.filter(p => p.id !== id));
+  }
+
   // Derive status from completed shifts vs required (including recertification)
   function deriveStatus(traineeId, positionId, requiredShifts) {
     const completedShifts = shifts.filter(
@@ -210,6 +264,8 @@ export function AppProvider({ children }) {
     records,
     recordMap,
     shifts,
+    goals,
+    paths,
     addTrainee,
     updateTrainee,
     deleteTrainee,
@@ -222,6 +278,14 @@ export function AppProvider({ children }) {
     getShiftsForRecord,
     deriveStatus,
     getCompletedShiftCount,
+    exportData,
+    importData,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    addPath,
+    updatePath,
+    deletePath,
     undo,
     canUndo,
   };

@@ -189,6 +189,36 @@ export default function ShiftModal({ isOpen, onClose, trainee, position, record,
           </div>
         </div>
 
+        {/* Competencies */}
+        {position?.competencies?.length > 0 && (
+          <div className={styles.competencies}>
+            <div className={styles.competenciesHeader}>
+              <span className={styles.competenciesLabel}>Competencies</span>
+              <span className={styles.competenciesCount}>
+                {(record?.checkedCompetencies ?? []).length}/{position.competencies.length} signed off
+              </span>
+            </div>
+            <ul className={styles.compList}>
+              {position.competencies.map(comp => {
+                const checked = (record?.checkedCompetencies ?? []).includes(comp.id);
+                return (
+                  <li key={comp.id} className={`${styles.compItem} ${checked ? styles.compChecked : ''}`}
+                    onClick={() => {
+                      const current = record?.checkedCompetencies ?? [];
+                      const updated = checked
+                        ? current.filter(id => id !== comp.id)
+                        : [...current, comp.id];
+                      onUpsertRecord(trainee.id, position.id, { checkedCompetencies: updated });
+                    }}>
+                    <span className={`${styles.compCheckbox} ${checked ? styles.compCheckboxChecked : ''}`}>{checked ? '✓' : ''}</span>
+                    <span>{comp.label}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
         {/* Shift list */}
         <div className={styles.shiftList}>
           {Array.from({ length: localRequired }, (_, i) => i + 1).map((num) => {

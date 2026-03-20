@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { CATEGORIES } from '../../constants/theme';
 import Button from '../shared/Button';
 import styles from '../trainees/TraineeForm.module.css';
+import posStyles from './PositionForm.module.css';
 
-const EMPTY = { name: '', category: 'FOH', description: '', requiredShifts: 3, recertifyAfterMonths: null };
+const EMPTY = { name: '', category: 'FOH', description: '', requiredShifts: 3, recertifyAfterMonths: null, competencies: [] };
 
 export default function PositionForm({ initialValues = {}, onSubmit, onCancel }) {
   const [values, setValues] = useState({ ...EMPTY, ...initialValues });
@@ -30,6 +31,7 @@ export default function PositionForm({ initialValues = {}, onSubmit, onCancel })
       ...values,
       requiredShifts: Number(values.requiredShifts),
       recertifyAfterMonths: values.recertifyAfterMonths != null ? Number(values.recertifyAfterMonths) : null,
+      competencies: (values.competencies || []).filter(c => c.label.trim()),
     });
   }
 
@@ -111,6 +113,33 @@ export default function PositionForm({ initialValues = {}, onSubmit, onCancel })
           placeholder="Optional description of this position..."
           rows={3}
         />
+      </div>
+
+      {/* Competencies */}
+      <div className={posStyles.competenciesSection}>
+        <label className={styles.label}>Competencies</label>
+        <p className={posStyles.hint}>Skills to check off during training (optional)</p>
+        {values.competencies?.map((comp, i) => (
+          <div key={comp.id} className={posStyles.compRow}>
+            <input
+              className={posStyles.compInput}
+              value={comp.label}
+              onChange={e => setValues(prev => ({
+                ...prev,
+                competencies: prev.competencies.map((c, j) => j === i ? { ...c, label: e.target.value } : c)
+              }))}
+              placeholder={`Skill ${i + 1}`}
+            />
+            <button type="button" className={posStyles.compRemove}
+              onClick={() => setValues(prev => ({ ...prev, competencies: prev.competencies.filter((_, j) => j !== i) }))}>
+              ✕
+            </button>
+          </div>
+        ))}
+        <button type="button" className={posStyles.addCompBtn}
+          onClick={() => setValues(prev => ({ ...prev, competencies: [...(prev.competencies || []), { id: crypto.randomUUID(), label: '' }] }))}>
+          + Add Competency
+        </button>
       </div>
 
       <div className={styles.actions}>

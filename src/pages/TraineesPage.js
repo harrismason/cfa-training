@@ -7,6 +7,7 @@ import TraineeReport from '../components/trainees/TraineeReport';
 import Modal from '../components/shared/Modal';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import Button from '../components/shared/Button';
+import CsvImportModal from '../components/trainees/CsvImportModal';
 import styles from './TraineesPage.module.css';
 
 export default function TraineesPage() {
@@ -16,6 +17,7 @@ export default function TraineesPage() {
   const [deletingTrainee, setDeletingTrainee] = useState(null);
   const [reportTrainee, setReportTrainee] = useState(null);
   const [search, setSearch] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = trainees.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase())
@@ -57,7 +59,10 @@ export default function TraineesPage() {
           <h1 className={styles.title}>Trainees</h1>
           <p className={styles.subtitle}>{trainees.length} team member{trainees.length !== 1 ? 's' : ''}</p>
         </div>
-        <Button variant="primary" onClick={handleAdd}>+ Add Trainee</Button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Button variant="secondary" onClick={() => setImportOpen(true)}>↑ Import CSV</Button>
+          <Button variant="primary" onClick={handleAdd}>+ Add Trainee</Button>
+        </div>
       </div>
 
       {trainees.length > 0 && (
@@ -104,6 +109,12 @@ export default function TraineesPage() {
         isOpen={!!reportTrainee}
         onClose={() => setReportTrainee(null)}
         trainee={reportTrainee}
+      />
+
+      <CsvImportModal
+        isOpen={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImport={(rows) => { rows.forEach(r => addTrainee(r)); }}
       />
     </PageContainer>
   );

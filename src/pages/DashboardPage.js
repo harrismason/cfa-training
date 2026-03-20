@@ -1,12 +1,14 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import PageContainer from '../components/layout/PageContainer';
+import GoalForm from '../components/dashboard/GoalForm';
 import { STATUS } from '../constants/theme';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
-  const { trainees, positions, recordMap, shifts, deriveStatus } = useAppContext();
+  const { trainees, positions, recordMap, shifts, deriveStatus, goals, addGoal, deleteGoal } = useAppContext();
+  const [goalFormOpen, setGoalFormOpen] = useState(false);
 
   const stats = useMemo(() => {
     const total = trainees.length * positions.length;
@@ -68,6 +70,30 @@ export default function DashboardPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positions, trainees, recordMap, deriveStatus]);
 
+  const goalProgress = useMemo(() => {
+    return goals.map(goal => {
+      const filteredPositions = goal.category
+        ? positions.filter(p => p.category === goal.category)
+        : positions;
+      const total = trainees.length * filteredPositions.length;
+      if (total === 0) return { ...goal, pct: 0, daysLeft: null };
+      let trained = 0;
+      trainees.forEach(t => {
+        filteredPositions.forEach(p => {
+          const record = recordMap.get(`${t.id}::${p.id}`);
+          const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+          const s = deriveStatus(t.id, p.id, required);
+          if (s === STATUS.TRAINED || s === STATUS.NEEDS_RECERT) trained++;
+        });
+      });
+      const pct = Math.round((trained / total) * 100);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const target = new Date(goal.targetDate + 'T00:00:00');
+      const daysLeft = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+      return { ...goal, pct, daysLeft };
+    });
+  }, [goals, positions, trainees, recordMap, deriveStatus]);
+
   const isEmpty = trainees.length === 0 || positions.length === 0;
 
   return (
@@ -128,6 +154,45 @@ export default function DashboardPage() {
               </span>
             </div>
           )}
+
+          {/* Goals */}
+          <div className={styles.goalsSection}>
+            <div className={styles.goalsSectionHeader}>
+              <h2 className={styles.sectionTitle}>🎯 Team Goals</h2>
+              <button className={styles.addGoalBtn} onClick={() => setGoalFormOpen(true)}>+ Add Goal</button>
+            </div>
+            {goalProgress.length === 0 ? (
+              <p className={styles.empty}>No goals set. Add a goal to track team-wide targets.</p>
+            ) : (
+              <div className={styles.goalCards}>
+                {goalProgress.map(goal => {
+                  const met = goal.pct >= goal.targetPct;
+                  const overdue = goal.daysLeft < 0;
+                  return (
+                    <div key={goal.id} className={`${styles.goalCard} ${met ? styles.goalMet : ''} ${overdue && !met ? styles.goalOverdue : ''}`}>
+                      <div className={styles.goalCardTop}>
+                        <span className={styles.goalTitle}>{goal.title}</span>
+                        <button className={styles.goalDelete} onClick={() => deleteGoal(goal.id)} title="Remove goal">✕</button>
+                      </div>
+                      <div className={styles.goalBarTrack}>
+                        <div className={styles.goalBarFill} style={{ width: `${Math.min(goal.pct, 100)}%` }} />
+                        {goal.targetPct < 100 && (
+                          <div className={styles.goalBarTarget} style={{ left: `${goal.targetPct}%` }} />
+                        )}
+                      </div>
+                      <div className={styles.goalCardBottom}>
+                        <span className={styles.goalPct}>{goal.pct}% / {goal.targetPct}%</span>
+                        <span className={`${styles.goalDays} ${overdue && !met ? styles.goalDaysOverdue : ''}`}>
+                          {met ? '✓ Goal met!' : overdue ? `${Math.abs(goal.daysLeft)}d overdue` : `${goal.daysLeft}d left`}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <GoalForm isOpen={goalFormOpen} onClose={() => setGoalFormOpen(false)} onSubmit={addGoal} />
 
           <div className={styles.columns}>
             {/* Recent activity */}

@@ -86,3 +86,21 @@
   opacity: 0.35;
   cursor: default;
 }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.navIconBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--radius-md);
+  transition: background-color 0.12s;
+  line-height: 1;
+}
+.navIconBtn:hover { background: rgba(255,255,255,0.15); }
