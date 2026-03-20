@@ -84,6 +84,14 @@ export default function NavBar() {
           Paths
         </NavLink>
         <NavLink
+          to="/planner"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.linkActive : ''}`
+          }
+        >
+          Planner
+        </NavLink>
+        <NavLink
           to="/positions"
           className={({ isActive }) =>
             `${styles.link} ${isActive ? styles.linkActive : ''}`

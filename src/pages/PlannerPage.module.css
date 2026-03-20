@@ -1,0 +1,299 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.2rem;
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.scheduleBtn {
+  padding: 0.5rem 1.1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.scheduleBtn:hover {
+  opacity: 0.9;
+}
+
+/* Week navigation */
+.weekNav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.weekLabel {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  min-width: 200px;
+  text-align: center;
+}
+
+.navBtn {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.8rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.navBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.todayBtn {
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.75rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-family: inherit;
+}
+
+.todayBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Alert banner */
+.alertBanner {
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  font-size: var(--font-size-sm);
+  color: #7B5500;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+/* 7-day calendar grid */
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .calendarGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .calendarGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Day column */
+.dayCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 80px;
+}
+
+.dayHeader {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--color-border);
+  line-height: 1.3;
+}
+
+.dayHeaderToday {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Shift cards */
+.shiftCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: var(--font-size-xs);
+}
+
+.shiftCardDone {
+  border-color: var(--color-success);
+  background: var(--color-success-light, #E8F5E9);
+  opacity: 0.85;
+}
+
+.shiftTime {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.shiftTrainee {
+  font-weight: 700;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.shiftPos {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.shiftTrainer {
+  font-style: italic;
+}
+
+.shiftNotes {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shiftActions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.completeBtn {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-success);
+  background: none;
+  border: 1.5px solid var(--color-success);
+  border-radius: var(--radius-sm, 4px);
+  padding: 0.15rem 0.45rem;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.completeBtn:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.editBtn {
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 0.1rem;
+}
+
+.editBtn:hover {
+  color: var(--color-primary);
+}
+
+.deleteBtn {
+  font-size: 0.65rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 0.1rem;
+  margin-left: auto;
+}
+
+.deleteBtn:hover {
+  color: #E53935;
+}
+
+.doneLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-success);
+  margin-top: 0.2rem;
+}
+
+/* Add day button */
+.addDayBtn {
+  background: none;
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.2rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.addDayBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Summary */
+.summary {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+  text-align: right;
+}
+
+/* Empty hint */
+.emptyHint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.emptyLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}

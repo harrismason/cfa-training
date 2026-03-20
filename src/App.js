@@ -7,6 +7,7 @@ import TraineesPage from './pages/TraineesPage';
 import PositionsPage from './pages/PositionsPage';
 import TrainersPage from './pages/TrainersPage';
 import PathsPage from './pages/PathsPage';
+import PlannerPage from './pages/PlannerPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/trainees" element={<TraineesPage />} />
           <Route path="/trainers" element={<TrainersPage />} />
           <Route path="/paths" element={<PathsPage />} />
+          <Route path="/planner" element={<PlannerPage />} />
           <Route path="/positions" element={<PositionsPage />} />
         </Routes>
       </main>

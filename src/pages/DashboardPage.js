@@ -6,8 +6,10 @@ import GoalForm from '../components/dashboard/GoalForm';
 import { STATUS } from '../constants/theme';
 import styles from './DashboardPage.module.css';
 
+const TODAY = new Date().toISOString().split('T')[0];
+
 export default function DashboardPage() {
-  const { trainees, positions, recordMap, shifts, deriveStatus, goals, addGoal, deleteGoal } = useAppContext();
+  const { trainees, positions, recordMap, shifts, deriveStatus, goals, addGoal, deleteGoal, plannedShifts } = useAppContext();
   const [goalFormOpen, setGoalFormOpen] = useState(false);
 
   const stats = useMemo(() => {
@@ -93,6 +95,19 @@ export default function DashboardPage() {
       return { ...goal, pct, daysLeft };
     });
   }, [goals, positions, trainees, recordMap, deriveStatus]);
+
+  // Next 5 pending planned shifts sorted by date
+  const upcomingShifts = useMemo(() => {
+    return [...plannedShifts]
+      .filter(s => !s.completedAt && s.scheduledDate >= TODAY)
+      .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate) || (a.scheduledTime ?? '').localeCompare(b.scheduledTime ?? ''))
+      .slice(0, 5)
+      .map(s => ({
+        ...s,
+        traineeName: trainees.find(t => t.id === s.traineeId)?.name ?? '?',
+        positionName: positions.find(p => p.id === s.positionId)?.name ?? '?',
+      }));
+  }, [plannedShifts, trainees, positions]);
 
   const isEmpty = trainees.length === 0 || positions.length === 0;
 
@@ -193,6 +208,38 @@ export default function DashboardPage() {
             )}
           </div>
           <GoalForm isOpen={goalFormOpen} onClose={() => setGoalFormOpen(false)} onSubmit={addGoal} />
+
+          {/* Upcoming Shifts */}
+          <section className={styles.section} style={{ marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h2 className={styles.sectionTitle}>📅 Upcoming Shifts</h2>
+              <Link to="/planner" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-primary)', fontWeight: 600 }}>
+                View Planner →
+              </Link>
+            </div>
+            {upcomingShifts.length === 0 ? (
+              <p className={styles.empty}>
+                No shifts scheduled.{' '}
+                <Link to="/planner" className={styles.emptyLink}>Go to Planner</Link> to schedule training.
+              </p>
+            ) : (
+              <ul className={styles.activityList}>
+                {upcomingShifts.map(s => {
+                  const timeStr = s.scheduledTime
+                    ? ` · ${(() => { const [h,m] = s.scheduledTime.split(':').map(Number); const ampm = h>=12?'PM':'AM'; return `${h%12||12}:${String(m).padStart(2,'0')} ${ampm}`; })()}`
+                    : '';
+                  return (
+                    <li key={s.id} className={styles.activityItem}>
+                      <span className={styles.activityDate}>{s.scheduledDate}</span>
+                      <span className={styles.activityName}>{s.traineeName}</span>
+                      <span className={styles.activitySep}>→</span>
+                      <span className={styles.activityPos}>{s.positionName}{timeStr}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
 
           <div className={styles.columns}>
             {/* Recent activity */}

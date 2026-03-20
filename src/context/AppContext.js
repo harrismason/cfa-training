@@ -12,6 +12,7 @@ export function AppProvider({ children }) {
   const [shifts, setShifts] = useLocalStorage('cfa_shifts', []);
   const [goals, setGoals] = useLocalStorage('cfa_goals', []);
   const [paths, setPaths] = useLocalStorage('cfa_paths', []);
+  const [plannedShifts, setPlannedShifts] = useLocalStorage('cfa_planned_shifts', []);
 
   // --- Undo stack ---
   const undoStackRef = useRef([]);
@@ -20,7 +21,7 @@ export function AppProvider({ children }) {
   function pushUndo() {
     undoStackRef.current = [
       ...undoStackRef.current.slice(-19),
-      { trainees, positions, records, shifts, goals, paths },
+      { trainees, positions, records, shifts, goals, paths, plannedShifts },
     ];
     setCanUndo(true);
   }
@@ -35,6 +36,7 @@ export function AppProvider({ children }) {
     setShifts(snapshot.shifts);
     if (snapshot.goals) setGoals(snapshot.goals);
     if (snapshot.paths) setPaths(snapshot.paths);
+    if (snapshot.plannedShifts) setPlannedShifts(snapshot.plannedShifts);
     setCanUndo(undoStackRef.current.length > 0);
   }
 
@@ -160,7 +162,7 @@ export function AppProvider({ children }) {
 
   // --- Backup / Restore ---
   function exportData() {
-    const data = { trainees, positions, records, shifts, goals, paths, exportedAt: new Date().toISOString() };
+    const data = { trainees, positions, records, shifts, goals, paths, plannedShifts, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -178,6 +180,7 @@ export function AppProvider({ children }) {
     if (data.shifts) setShifts(data.shifts);
     if (data.goals) setGoals(data.goals);
     if (data.paths) setPaths(data.paths);
+    if (data.plannedShifts) setPlannedShifts(data.plannedShifts);
   }
 
   // --- Goal mutations ---
@@ -206,6 +209,56 @@ export function AppProvider({ children }) {
   function deletePath(id) {
     pushUndo();
     setPaths(prev => prev.filter(p => p.id !== id));
+  }
+
+  // --- Planned Shift mutations ---
+  function addPlannedShift(data) {
+    pushUndo();
+    setPlannedShifts(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), completedAt: null, notes: '', ...data, createdAt: new Date().toISOString() },
+    ]);
+  }
+
+  function updatePlannedShift(id, data) {
+    pushUndo();
+    setPlannedShifts(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
+  }
+
+  function deletePlannedShift(id) {
+    pushUndo();
+    setPlannedShifts(prev => prev.filter(s => s.id !== id));
+  }
+
+  // Atomically creates a real completed shift + marks planned shift done (ONE undo entry)
+  function completePlannedShift(id, completedDate) {
+    const ps = plannedShifts.find(s => s.id === id);
+    if (!ps) return;
+    pushUndo();
+    // Compute next shift number
+    const existingCount = shifts.filter(
+      s => s.traineeId === ps.traineeId && s.positionId === ps.positionId && s.completedDate
+    ).length;
+    const shiftNumber = existingCount + 1;
+    // Add to real shifts (bypass upsertShift to avoid double pushUndo)
+    setShifts(prev => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        traineeId: ps.traineeId,
+        positionId: ps.positionId,
+        shiftNumber,
+        completedDate,
+        trainerId: ps.trainerId ?? null,
+        notes: ps.notes ?? '',
+        rating: null,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+    // Mark planned shift as done
+    setPlannedShifts(prev =>
+      prev.map(s => s.id === id ? { ...s, completedAt: new Date().toISOString(), completedDate } : s)
+    );
   }
 
   // Derive status from completed shifts vs required (including recertification)
@@ -286,6 +339,11 @@ export function AppProvider({ children }) {
     addPath,
     updatePath,
     deletePath,
+    plannedShifts,
+    addPlannedShift,
+    updatePlannedShift,
+    deletePlannedShift,
+    completePlannedShift,
     undo,
     canUndo,
   };
