@@ -42,13 +42,27 @@
 
 .shiftRow {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.4rem;
   padding: 0.625rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg);
   transition: background-color 0.15s;
+}
+
+.shiftRowMain {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.shiftRowExtras {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 2.5rem;
 }
 
 .shiftDone {
@@ -141,4 +155,144 @@
 .statusTrained {
   background: var(--color-success-light);
   color: var(--color-success);
+}
+
+.statusNeedsRecert {
+  background: var(--color-recert-light, #F3E5F5);
+  color: var(--color-recert, #7B1FA2);
+}
+
+/* Meta row: target date + tag */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metaField {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.metaLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.targetDateInput {
+  padding: 0.35rem 0.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  background: var(--color-white);
+}
+
+.targetDateInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Tag selector toggle */
+.tagSelector {
+  display: flex;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.tagOption {
+  padding: 0.3rem 0.7rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  background: var(--color-white);
+  border: none;
+  border-right: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+  font-family: inherit;
+}
+
+.tagOption:last-child {
+  border-right: none;
+}
+
+.tagOption:hover {
+  background: var(--color-bg);
+}
+
+.tagOptionActive {
+  background: var(--color-text);
+  color: var(--color-white);
+}
+
+.tagOptionActive.tag_needs_training {
+  background: #E53935;
+  color: #fff;
+}
+
+.tagOptionActive.tag_practice_only {
+  background: #1565C0;
+  color: #fff;
+}
+
+/* Trainer dropdown */
+.trainerSelect {
+  padding: 0.3rem 0.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  background: var(--color-white);
+  font-family: inherit;
+  max-width: 150px;
+}
+
+.trainerSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Star rating */
+.starRating {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 0 1px;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.1s;
+  font-family: inherit;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.starFilled {
+  color: var(--color-secondary, #FFC72C);
+}
+
+.starEmpty {
+  color: var(--color-border);
+}
+
+/* Average rating in footer */
+.avgRating {
+  font-weight: 400;
+  opacity: 0.9;
 }

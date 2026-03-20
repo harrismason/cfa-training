@@ -48,3 +48,35 @@
   font-weight: 700;
   color: var(--color-success);
 }
+
+.needs_recert {
+  background-color: var(--color-recert-light, #F3E5F5);
+}
+
+.iconNeedsRecert {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-recert, #7B1FA2);
+}
+
+.overdue {
+  box-shadow: inset 3px 0 0 #E53935;
+}
+
+.tagDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.tagDot_needs_training {
+  background-color: #E53935;
+}
+
+.tagDot_practice_only {
+  background-color: #1565C0;
+}

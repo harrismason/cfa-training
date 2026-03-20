@@ -2,7 +2,7 @@ import TraineeCard from './TraineeCard';
 import EmptyState from '../shared/EmptyState';
 import styles from './TraineeList.module.css';
 
-export default function TraineeList({ trainees, onEdit, onDelete, onAdd }) {
+export default function TraineeList({ trainees, onEdit, onDelete, onAdd, onReport }) {
   if (!trainees.length) {
     return (
       <EmptyState
@@ -16,7 +16,7 @@ export default function TraineeList({ trainees, onEdit, onDelete, onAdd }) {
   return (
     <div className={styles.list}>
       {trainees.map((t) => (
-        <TraineeCard key={t.id} trainee={t} onEdit={onEdit} onDelete={onDelete} />
+        <TraineeCard key={t.id} trainee={t} onEdit={onEdit} onDelete={onDelete} onReport={onReport} />
       ))}
     </div>
   );

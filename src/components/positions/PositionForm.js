@@ -3,7 +3,7 @@ import { CATEGORIES } from '../../constants/theme';
 import Button from '../shared/Button';
 import styles from '../trainees/TraineeForm.module.css';
 
-const EMPTY = { name: '', category: 'FOH', description: '', requiredShifts: 3 };
+const EMPTY = { name: '', category: 'FOH', description: '', requiredShifts: 3, recertifyAfterMonths: null };
 
 export default function PositionForm({ initialValues = {}, onSubmit, onCancel }) {
   const [values, setValues] = useState({ ...EMPTY, ...initialValues });
@@ -26,7 +26,11 @@ export default function PositionForm({ initialValues = {}, onSubmit, onCancel })
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    onSubmit({ ...values, requiredShifts: Number(values.requiredShifts) });
+    onSubmit({
+      ...values,
+      requiredShifts: Number(values.requiredShifts),
+      recertifyAfterMonths: values.recertifyAfterMonths != null ? Number(values.recertifyAfterMonths) : null,
+    });
   }
 
   return (
@@ -66,6 +70,34 @@ export default function PositionForm({ initialValues = {}, onSubmit, onCancel })
           />
           {errors.requiredShifts && <span className={styles.error}>{errors.requiredShifts}</span>}
         </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={values.recertifyAfterMonths != null}
+            onChange={(e) =>
+              setValues((prev) => ({ ...prev, recertifyAfterMonths: e.target.checked ? 6 : null }))
+            }
+          />
+          Requires recertification
+        </label>
+        {values.recertifyAfterMonths != null && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.4rem' }}>
+            <input
+              name="recertifyAfterMonths"
+              type="number"
+              min="1"
+              max="60"
+              className={styles.input}
+              style={{ width: '80px' }}
+              value={values.recertifyAfterMonths}
+              onChange={handleChange}
+            />
+            <span className={styles.label} style={{ fontWeight: 400, marginBottom: 0 }}>months after training</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.field}>

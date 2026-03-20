@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import PageContainer from '../components/layout/PageContainer';
 import TraineeList from '../components/trainees/TraineeList';
 import TraineeForm from '../components/trainees/TraineeForm';
+import TraineeReport from '../components/trainees/TraineeReport';
 import Modal from '../components/shared/Modal';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
 import Button from '../components/shared/Button';
@@ -13,6 +14,7 @@ export default function TraineesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTrainee, setEditingTrainee] = useState(null);
   const [deletingTrainee, setDeletingTrainee] = useState(null);
+  const [reportTrainee, setReportTrainee] = useState(null);
   const [search, setSearch] = useState('');
 
   const filtered = trainees.filter((t) =>
@@ -75,6 +77,7 @@ export default function TraineesPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAdd={handleAdd}
+        onReport={(t) => setReportTrainee(t)}
       />
 
       <Modal
@@ -95,6 +98,12 @@ export default function TraineesPage() {
         onConfirm={confirmDelete}
         title="Delete Trainee"
         message={`Are you sure you want to delete "${deletingTrainee?.name}"? This will also remove all their training records.`}
+      />
+
+      <TraineeReport
+        isOpen={!!reportTrainee}
+        onClose={() => setReportTrainee(null)}
+        trainee={reportTrainee}
       />
     </PageContainer>
   );

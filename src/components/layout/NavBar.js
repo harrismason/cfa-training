@@ -1,7 +1,22 @@
+import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAppContext } from '../../context/AppContext';
 import styles from './NavBar.module.css';
 
 export default function NavBar() {
+  const { undo, canUndo } = useAppContext();
+
+  useEffect(() => {
+    function onKey(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo]);
+
   return (
     <nav className={styles.nav}>
       <div className={styles.brand}>
@@ -9,6 +24,14 @@ export default function NavBar() {
         <span className={styles.brandName}>CFA Training Tracker</span>
       </div>
       <div className={styles.links}>
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.linkActive : ''}`
+          }
+        >
+          Dashboard
+        </NavLink>
         <NavLink
           to="/matrix"
           className={({ isActive }) =>
@@ -34,6 +57,14 @@ export default function NavBar() {
           Positions
         </NavLink>
       </div>
+      <button
+        className={`${styles.undoBtn} ${!canUndo ? styles.undoBtnDisabled : ''}`}
+        onClick={undo}
+        disabled={!canUndo}
+        title="Undo last action (Ctrl+Z)"
+      >
+        ⟲ Undo
+      </button>
     </nav>
   );
 }

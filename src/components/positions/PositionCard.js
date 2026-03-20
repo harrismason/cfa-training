@@ -22,6 +22,9 @@ export default function PositionCard({ position, onEdit, onDelete }) {
             {position.category}
           </span>
           <span className={styles.shifts}>{requiredShifts} shift{requiredShifts !== 1 ? 's' : ''} required</span>
+          {position.recertifyAfterMonths != null && (
+            <span className={styles.recert}>↻ Recert every {position.recertifyAfterMonths}mo</span>
+          )}
         </div>
         {position.description && (
           <p className={styles.description}>{position.description}</p>
