@@ -9,6 +9,7 @@ import TrainersPage from './pages/TrainersPage';
 import PathsPage from './pages/PathsPage';
 import PlannerPage from './pages/PlannerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/paths" element={<PathsPage />} />
           <Route path="/planner" element={<PlannerPage />} />
           <Route path="/positions" element={<PositionsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>
     </div>

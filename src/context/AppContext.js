@@ -1,18 +1,54 @@
-import { createContext, useContext, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useFirebaseData } from '../hooks/useFirebaseData';
+import { initFirebase, teardownFirebase } from '../firebase/firebase';
 import { SEED_POSITIONS } from '../constants/seeds';
 import { STATUS } from '../constants/theme';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [trainees, setTrainees] = useLocalStorage('cfa_trainees', []);
-  const [positions, setPositions] = useLocalStorage('cfa_positions', SEED_POSITIONS);
-  const [records, setRecords] = useLocalStorage('cfa_records', []);
-  const [shifts, setShifts] = useLocalStorage('cfa_shifts', []);
-  const [goals, setGoals] = useLocalStorage('cfa_goals', []);
-  const [paths, setPaths] = useLocalStorage('cfa_paths', []);
-  const [plannedShifts, setPlannedShifts] = useLocalStorage('cfa_planned_shifts', []);
+  // Firebase connection state (persisted in localStorage)
+  const [firebaseConfig, setFirebaseConfigStored] = useLocalStorage('cfa_firebase_config', null);
+  const [storeId, setStoreIdStored] = useLocalStorage('cfa_store_id', '');
+  const [firebaseConnected, setFirebaseConnected] = useState(false);
+
+  // Initialize Firebase on mount if previously configured
+  useEffect(() => {
+    if (firebaseConfig && storeId) {
+      const result = initFirebase(firebaseConfig);
+      setFirebaseConnected(!!result);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // All data arrays — useFirebaseData falls back to localStorage-only when storeId is empty
+  const [trainees, setTrainees] = useFirebaseData('cfa_trainees', [], storeId);
+  const [positions, setPositions] = useFirebaseData('cfa_positions', SEED_POSITIONS, storeId);
+  const [records, setRecords] = useFirebaseData('cfa_records', [], storeId);
+  const [shifts, setShifts] = useFirebaseData('cfa_shifts', [], storeId);
+  const [goals, setGoals] = useFirebaseData('cfa_goals', [], storeId);
+  const [paths, setPaths] = useFirebaseData('cfa_paths', [], storeId);
+  const [plannedShifts, setPlannedShifts] = useFirebaseData('cfa_planned_shifts', [], storeId);
+
+  // --- Firebase connect / disconnect ---
+  function connectFirebase(config, id) {
+    const result = initFirebase(config);
+    if (result) {
+      setFirebaseConfigStored(config);
+      setStoreIdStored(id);
+      setFirebaseConnected(true);
+      return true;
+    }
+    return false;
+  }
+
+  function disconnectFirebase() {
+    teardownFirebase();
+    setFirebaseConnected(false);
+    setFirebaseConfigStored(null);
+    setStoreIdStored('');
+    // Data stays in localStorage — nothing lost
+  }
 
   // --- Undo stack ---
   const undoStackRef = useRef([]);
@@ -235,12 +271,10 @@ export function AppProvider({ children }) {
     const ps = plannedShifts.find(s => s.id === id);
     if (!ps) return;
     pushUndo();
-    // Compute next shift number
     const existingCount = shifts.filter(
       s => s.traineeId === ps.traineeId && s.positionId === ps.positionId && s.completedDate
     ).length;
     const shiftNumber = existingCount + 1;
-    // Add to real shifts (bypass upsertShift to avoid double pushUndo)
     setShifts(prev => [
       ...prev,
       {
@@ -255,7 +289,6 @@ export function AppProvider({ children }) {
         createdAt: new Date().toISOString(),
       },
     ]);
-    // Mark planned shift as done
     setPlannedShifts(prev =>
       prev.map(s => s.id === id ? { ...s, completedAt: new Date().toISOString(), completedDate } : s)
     );
@@ -270,7 +303,6 @@ export function AppProvider({ children }) {
     if (count === 0) return STATUS.NOT_STARTED;
     if (count < requiredShifts) return STATUS.IN_PROGRESS;
 
-    // Trained — check recertification using position's recertifyAfterMonths
     const pos = positions.find((p) => p.id === positionId);
     if (pos?.recertifyAfterMonths != null) {
       const sorted = [...completedShifts].sort(
@@ -319,6 +351,7 @@ export function AppProvider({ children }) {
     shifts,
     goals,
     paths,
+    plannedShifts,
     addTrainee,
     updateTrainee,
     deleteTrainee,
@@ -339,13 +372,17 @@ export function AppProvider({ children }) {
     addPath,
     updatePath,
     deletePath,
-    plannedShifts,
     addPlannedShift,
     updatePlannedShift,
     deletePlannedShift,
     completePlannedShift,
     undo,
     canUndo,
+    // Firebase
+    firebaseConnected,
+    firebaseStoreId: storeId,
+    connectFirebase,
+    disconnectFirebase,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
