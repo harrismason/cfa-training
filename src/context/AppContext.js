@@ -94,8 +94,6 @@ export function AppProvider({ children }) {
 
   // Store ID (persisted in localStorage)
   const [storeId, setStoreIdStored] = useLocalStorage('cfa_store_id', '');
-  // Persistent map of Supabase user UUID → trainee ID (so members only pick their name once)
-  const [traineePickMap, setTraineePickMap] = useLocalStorage('cfa_trainee_picks', {});
   const supabaseConnected = true;
 
   // All data arrays — useSupabaseData falls back to localStorage-only when storeId is empty
@@ -132,10 +130,6 @@ export function AppProvider({ children }) {
   function login(userObj) {
     sessionStorage.setItem('cfa_current_user', JSON.stringify(userObj));
     setCurrentUser(userObj);
-    // Persist trainee selection so members skip the picker on future logins
-    if (!isElectron && authSession?.user?.id && userObj.id) {
-      setTraineePickMap(prev => ({ ...prev, [authSession.user.id]: userObj.id }));
-    }
   }
   function logout() {
     sessionStorage.removeItem('cfa_current_user');
@@ -176,7 +170,7 @@ export function AppProvider({ children }) {
       name = perm.role === 'manager' ? 'Manager' : 'Trainer';
     } else {
       accessLevel = 'member';
-      traineeId = (uid && traineePickMap[uid]) || null;
+      traineeId = null;
       role = 'Team Member';
       name = email.split('@')[0];
     }
@@ -194,7 +188,7 @@ export function AppProvider({ children }) {
       return resolved;
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isElectron, authLoading, authSession, storeId, userPermissions, traineePickMap, trainees]);
+  }, [isElectron, authLoading, authSession, storeId, userPermissions, trainees]);
 
   // --- User permission management (admin only) ---
   function setUserPermission(email, role, traineeId = null) {

@@ -23,8 +23,11 @@ export default function ProtectedRoute({ children, requiredLevel = 'trainer' }) 
     return <Navigate to="/store-code" replace />;
   }
 
-  // Gate 3: Must have picked a team member (PIN-based multi-member screen)
+  // Gate 3: Must have a resolved user identity
+  // Email-auth users: AppContext auto-resolves currentUser from their email — just wait for it.
+  // Desktop/PIN users: redirect to the login picker if nothing is set yet.
   if (preferences.authEnabled && !currentUser) {
+    if (authSession) return null; // email-auth: brief wait while AppContext resolves
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

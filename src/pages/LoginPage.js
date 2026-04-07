@@ -9,14 +9,10 @@ function getInitials(name) {
 }
 
 export default function LoginPage() {
-  const { trainees, preferences, login, authSession, currentUser } = useAppContext();
+  const { trainees, preferences, login } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
-
-  // True when an email-authenticated user hasn't picked their trainee profile yet.
-  // In this mode we skip the manager option and the role-selection step.
-  const isTraineePick = !!(authSession && (!currentUser || !currentUser.id));
 
   const [step, setStep] = useState('pick'); // 'pick' | 'role' | 'pin'
   const [selected, setSelected] = useState(null); // trainee object or 'manager'
@@ -28,12 +24,6 @@ export default function LoginPage() {
   if (navigator.userAgent.includes('Electron')) return <Navigate to="/dashboard" replace />;
 
   function handlePickTrainee(trainee) {
-    if (isTraineePick) {
-      // Email-auth members: skip role selection, go straight to member access
-      login({ id: trainee.id, name: trainee.name, role: trainee.role, accessLevel: 'member' });
-      navigate(from, { replace: true });
-      return;
-    }
     setSelected(trainee);
     setAccessLevel('member');
     setStep('role');
@@ -74,7 +64,7 @@ export default function LoginPage() {
           <div className={styles.logo}>CFA</div>
           <h1 className={styles.title}>Training Tracker</h1>
           <p className={styles.subtitle}>
-            {step === 'pick' && (isTraineePick ? 'Select your profile' : 'Who are you?')}
+            {step === 'pick' && 'Who are you?'}
             {step === 'role' && `Welcome, ${selected?.name}`}
             {step === 'pin' && 'Manager Access'}
           </p>
@@ -108,16 +98,16 @@ export default function LoginPage() {
               )}
             </div>
 
-            {!isTraineePick && <div className={styles.divider} />}
+            <div className={styles.divider} />
 
-            {!isTraineePick && <button className={styles.managerBtn} onClick={handlePickManager}>
+            <button className={styles.managerBtn} onClick={handlePickManager}>
               <span className={styles.lockIcon}>🔐</span>
               <div className={styles.traineeInfo}>
                 <span className={styles.traineeName}>Manager Access</span>
                 <span className={styles.traineeSubtext}>Full control — requires PIN</span>
               </div>
               <span className={styles.chevron}>›</span>
-            </button>}
+            </button>
           </div>
         )}
 
