@@ -9,8 +9,6 @@ function getInitials(name) {
 }
 
 export default function LoginPage() {
-  if (navigator.userAgent.includes('Electron')) return <Navigate to="/dashboard" replace />;
-
   const { trainees, preferences, login, authSession, currentUser } = useAppContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,6 +23,9 @@ export default function LoginPage() {
   const [accessLevel, setAccessLevel] = useState('member');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
+
+  // All hooks must run before any early return
+  if (navigator.userAgent.includes('Electron')) return <Navigate to="/dashboard" replace />;
 
   function handlePickTrainee(trainee) {
     if (isTraineePick) {
