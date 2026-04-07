@@ -4,34 +4,99 @@
   gap: 1.25rem;
 }
 
-.requiredRow {
+/* Click-to-edit required count row */
+.editableCountRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
 }
 
-.requiredLabel {
+.editableCountGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editableLabel {
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
-.requiredInput {
-  width: 64px;
-  padding: 0.4rem 0.6rem;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
+.editableCount {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  min-width: 20px;
+  text-align: center;
+}
+
+.editPencilBtn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  font-family: inherit;
+  transition: color 0.12s;
+}
+
+.editPencilBtn:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.inlineEditWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.inlineEditInput {
+  width: 60px;
+  padding: 0.3rem 0.45rem;
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text);
   text-align: center;
+  background: var(--color-white);
+  font-family: inherit;
 }
 
-.requiredInput:focus {
+.inlineEditInput:focus {
   outline: none;
-  border-color: var(--color-primary);
+}
+
+.confirmEditBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.practiceProgress {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: #1565C0;
+  background: #E3F2FD;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
 }
 
 .shiftList {
@@ -295,4 +360,300 @@
 .avgRating {
   font-weight: 400;
   opacity: 0.9;
+}
+
+.practiceCount {
+  font-weight: 400;
+  color: #1565C0;
+}
+
+/* Training / Practice tab bar */
+.tabBar {
+  display: flex;
+  border-bottom: 2px solid var(--color-border);
+  gap: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.tab:hover { color: var(--color-text); }
+
+.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tabPractice.tabActive {
+  color: #1565C0;
+  border-bottom-color: #1565C0;
+}
+
+.tabBadge {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  background: var(--color-bg);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  color: var(--color-text-muted);
+}
+
+/* Practice section */
+.practiceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.practiceNote {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: #E3F2FD;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #1565C0;
+}
+
+.practiceAddRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.625rem 0.75rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+}
+
+.addPracticeBtn {
+  padding: 0.35rem 0.75rem;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: #fff;
+  background: #1565C0;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.addPracticeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.practiceRow {
+  background: #E3F2FD !important;
+  border-color: #90CAF9 !important;
+}
+
+.practiceDot {
+  color: #1565C0;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+.practiceTrainerLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.deleteShiftBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 0.25rem;
+  font-family: inherit;
+}
+
+.deleteShiftBtn:hover { color: var(--color-primary); }
+
+.emptyPractice {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 1.5rem 0;
+  margin: 0;
+}
+
+/* Competency checklist */
+.competencies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.competenciesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.competenciesLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.competenciesCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.compList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.compItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  transition: background-color 0.1s;
+  user-select: none;
+}
+
+.compItem:hover {
+  background: var(--color-white);
+}
+
+.compChecked {
+  background: var(--color-success-light);
+  border-color: #A5D6A7;
+  color: var(--color-text);
+}
+
+.compCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--color-border);
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.compCheckboxChecked {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+/* Comments tab */
+.tabComments.tabActive {
+  color: #6A1B9A;
+  border-bottom-color: #6A1B9A;
+}
+
+.commentsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.commentList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.commentItem {
+  background: #F3E5F5;
+  border: 1px solid #CE93D8;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.commentAuthor {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: #6A1B9A;
+}
+
+.commentTime {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.commentText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.commentAddRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.commentTextarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-white);
+  resize: vertical;
+  min-height: 72px;
+  box-sizing: border-box;
+}
+
+.commentTextarea:focus {
+  outline: none;
+  border-color: #6A1B9A;
 }

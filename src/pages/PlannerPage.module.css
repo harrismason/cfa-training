@@ -1,0 +1,536 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Week / Month toggle */
+.viewToggle {
+  display: flex;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.viewBtn {
+  padding: 0.35rem 0.8rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  background: var(--color-white);
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.viewBtn:first-child { border-right: 1px solid var(--color-border); }
+
+.viewBtnActive {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.2rem;
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.scheduleBtn {
+  padding: 0.5rem 1.1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.scheduleBtn:hover {
+  opacity: 0.9;
+}
+
+/* Week navigation */
+.weekNav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.weekLabel {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  min-width: 200px;
+  text-align: center;
+}
+
+.navBtn {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.8rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.navBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.todayBtn {
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.75rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-family: inherit;
+}
+
+.todayBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Alert banner */
+.alertBanner {
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  font-size: var(--font-size-sm);
+  color: #7B5500;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+/* 7-day calendar grid */
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .calendarGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .calendarGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Day column */
+.dayCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 80px;
+}
+
+.dayHeader {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--color-border);
+  line-height: 1.3;
+}
+
+.dayHeaderToday {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Shift cards */
+.shiftCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: var(--font-size-xs);
+}
+
+.shiftCardDone {
+  border-color: var(--color-success);
+  background: var(--color-success-light, #E8F5E9);
+  opacity: 0.85;
+}
+
+.shiftTime {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.shiftTrainee {
+  font-weight: 700;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.shiftPos {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.shiftTrainer {
+  font-style: italic;
+}
+
+.shiftNotes {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shiftActions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.completeBtn {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-success);
+  background: none;
+  border: 1.5px solid var(--color-success);
+  border-radius: var(--radius-sm, 4px);
+  padding: 0.15rem 0.45rem;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.completeBtn:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.editBtn {
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 0.1rem;
+}
+
+.editBtn:hover {
+  color: var(--color-primary);
+}
+
+.deleteBtn {
+  font-size: 0.65rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 0.1rem;
+  margin-left: auto;
+}
+
+.deleteBtn:hover {
+  color: #E53935;
+}
+
+.doneRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.doneLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.undoCompleteBtn {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FCA5A5;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.4;
+  transition: background-color 0.12s;
+  white-space: nowrap;
+}
+
+.undoCompleteBtn:hover {
+  background: #FEE2E2;
+}
+
+/* Add day button */
+.addDayBtn {
+  background: none;
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.2rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.addDayBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Compact shift card for month view */
+.shiftCardCompact {
+  padding: 0.25rem 0.4rem;
+  gap: 0.1rem;
+}
+
+.shiftPosCompact {
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completeBtnMini {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--color-success);
+  background: none;
+  border: 1px solid var(--color-success);
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+  font-family: inherit;
+  margin-left: auto;
+}
+
+/* Month view grid */
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-border);
+  gap: 1px;
+  margin-bottom: 0.75rem;
+}
+
+.monthDayLabel {
+  background: #FAFAFA;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.monthCell {
+  background: var(--color-white);
+  min-height: 100px;
+  padding: 0.35rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  position: relative;
+}
+
+.monthCellOther {
+  background: #FAFAFA;
+}
+
+.monthCellToday {
+  background: #FFF8F8;
+}
+
+.monthCellHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+
+.monthDateNum {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.monthDateToday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.monthAddBtn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.monthCell:hover .monthAddBtn {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* Month shift pills */
+.monthPill {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.35rem;
+  border-radius: 3px;
+  background: #E3F2FD;
+  color: #1565C0;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 0.1s;
+  user-select: none;
+}
+
+.monthPill:hover { opacity: 0.8; }
+
+.monthPillDone {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.monthPillDot {
+  font-size: 0.45rem;
+  flex-shrink: 0;
+}
+
+.monthPillCheck {
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+.monthOverflow {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.monthOverflow:hover { color: var(--color-primary); }
+
+.switchToWeek {
+  margin-left: 1rem;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.switchToWeek:hover { text-decoration: underline; }
+
+/* Summary */
+.summary {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Empty hint */
+.emptyHint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.emptyLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}

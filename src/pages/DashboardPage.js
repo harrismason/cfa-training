@@ -1,12 +1,16 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import PageContainer from '../components/layout/PageContainer';
+import GoalForm from '../components/dashboard/GoalForm';
 import { STATUS } from '../constants/theme';
 import styles from './DashboardPage.module.css';
 
+const TODAY = new Date().toISOString().split('T')[0];
+
 export default function DashboardPage() {
-  const { trainees, positions, recordMap, shifts, deriveStatus } = useAppContext();
+  const { trainees, positions, recordMap, shifts, deriveStatus, goals, addGoal, deleteGoal, plannedShifts } = useAppContext();
+  const [goalFormOpen, setGoalFormOpen] = useState(false);
 
   const stats = useMemo(() => {
     const total = trainees.length * positions.length;
@@ -68,6 +72,77 @@ export default function DashboardPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [positions, trainees, recordMap, deriveStatus]);
 
+  const goalProgress = useMemo(() => {
+    return goals.map(goal => {
+      const filteredPositions = goal.category
+        ? positions.filter(p => p.category === goal.category)
+        : positions;
+      const total = trainees.length * filteredPositions.length;
+      if (total === 0) return { ...goal, pct: 0, daysLeft: null };
+      let trained = 0;
+      trainees.forEach(t => {
+        filteredPositions.forEach(p => {
+          const record = recordMap.get(`${t.id}::${p.id}`);
+          const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+          const s = deriveStatus(t.id, p.id, required);
+          if (s === STATUS.TRAINED || s === STATUS.NEEDS_RECERT) trained++;
+        });
+      });
+      const pct = Math.round((trained / total) * 100);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const target = new Date(goal.targetDate + 'T00:00:00');
+      const daysLeft = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+      return { ...goal, pct, daysLeft };
+    });
+  }, [goals, positions, trainees, recordMap, deriveStatus]);
+
+  // Today's planned training shifts (not yet completed)
+  const todayBriefing = useMemo(() => {
+    return plannedShifts
+      .filter(s => !s.completedAt && s.scheduledDate === TODAY)
+      .sort((a, b) => (a.scheduledTime ?? '').localeCompare(b.scheduledTime ?? ''))
+      .map(s => ({
+        ...s,
+        traineeName: trainees.find(t => t.id === s.traineeId)?.name ?? '?',
+        positionName: positions.find(p => p.id === s.positionId)?.name ?? '?',
+        trainerName: trainees.find(t => t.id === s.trainerId)?.name ?? null,
+      }));
+  }, [plannedShifts, trainees, positions]);
+
+  // Overdue trainee+position pairs (target date passed, not yet trained)
+  const overdueDetails = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const results = [];
+    trainees.forEach(t => {
+      positions.forEach(p => {
+        const record = recordMap.get(`${t.id}::${p.id}`);
+        if (!record?.targetDate) return;
+        const required = record?.requiredShifts ?? p.requiredShifts ?? 3;
+        const s = deriveStatus(t.id, p.id, required);
+        if (s === STATUS.TRAINED || s === STATUS.NEEDS_RECERT) return;
+        if (new Date(record.targetDate + 'T00:00:00') < today) {
+          const daysOverdue = Math.ceil((today - new Date(record.targetDate + 'T00:00:00')) / 86400000);
+          results.push({ trainee: t, position: p, targetDate: record.targetDate, daysOverdue });
+        }
+      });
+    });
+    return results.sort((a, b) => b.daysOverdue - a.daysOverdue).slice(0, 8);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainees, positions, recordMap, deriveStatus]);
+
+  // Next 5 pending planned shifts sorted by date
+  const upcomingShifts = useMemo(() => {
+    return [...plannedShifts]
+      .filter(s => !s.completedAt && s.scheduledDate >= TODAY)
+      .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate) || (a.scheduledTime ?? '').localeCompare(b.scheduledTime ?? ''))
+      .slice(0, 5)
+      .map(s => ({
+        ...s,
+        traineeName: trainees.find(t => t.id === s.traineeId)?.name ?? '?',
+        positionName: positions.find(p => p.id === s.positionId)?.name ?? '?',
+      }));
+  }, [plannedShifts, trainees, positions]);
+
   const isEmpty = trainees.length === 0 || positions.length === 0;
 
   return (
@@ -127,6 +202,134 @@ export default function DashboardPage() {
                 {stats.trained} of {stats.total} trained
               </span>
             </div>
+          )}
+
+          {/* Today's Training Briefing */}
+          <section className={styles.section} style={{ marginBottom: '1.25rem' }}>
+            <h2 className={styles.sectionTitle}>
+              📋 Today's Training
+              {todayBriefing.length > 0 && (
+                <span className={styles.briefingCount}>{todayBriefing.length}</span>
+              )}
+            </h2>
+            {todayBriefing.length === 0 ? (
+              <p className={styles.empty}>
+                No shifts scheduled for today.{' '}
+                <Link to="/planner" className={styles.emptyLink}>Go to Planner</Link> to schedule.
+              </p>
+            ) : (
+              <ul className={styles.activityList}>
+                {todayBriefing.map(s => {
+                  const timeStr = s.scheduledTime
+                    ? ` · ${(() => { const [h,m] = s.scheduledTime.split(':').map(Number); const ampm = h>=12?'PM':'AM'; return `${h%12||12}:${String(m).padStart(2,'0')} ${ampm}`; })()}`
+                    : '';
+                  return (
+                    <li key={s.id} className={styles.activityItem}>
+                      <span className={styles.activityName}>{s.traineeName}</span>
+                      <span className={styles.activitySep}>→</span>
+                      <span className={styles.activityPos}>{s.positionName}{timeStr}</span>
+                      {s.trainerName && (
+                        <span className={styles.activityDate}>w/ {s.trainerName}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* Goals */}
+          <div className={styles.goalsSection}>
+            <div className={styles.goalsSectionHeader}>
+              <h2 className={styles.sectionTitle}>🎯 Team Goals</h2>
+              <button className={styles.addGoalBtn} onClick={() => setGoalFormOpen(true)}>+ Add Goal</button>
+            </div>
+            {goalProgress.length === 0 ? (
+              <p className={styles.empty}>No goals set. Add a goal to track team-wide targets.</p>
+            ) : (
+              <div className={styles.goalCards}>
+                {goalProgress.map(goal => {
+                  const met = goal.pct >= goal.targetPct;
+                  const overdue = goal.daysLeft < 0;
+                  return (
+                    <div key={goal.id} className={`${styles.goalCard} ${met ? styles.goalMet : ''} ${overdue && !met ? styles.goalOverdue : ''}`}>
+                      <div className={styles.goalCardTop}>
+                        <span className={styles.goalTitle}>{goal.title}</span>
+                        <button className={styles.goalDelete} onClick={() => deleteGoal(goal.id)} title="Remove goal">✕</button>
+                      </div>
+                      <div className={styles.goalBarTrack}>
+                        <div className={styles.goalBarFill} style={{ width: `${Math.min(goal.pct, 100)}%` }} />
+                        {goal.targetPct < 100 && (
+                          <div className={styles.goalBarTarget} style={{ left: `${goal.targetPct}%` }} />
+                        )}
+                      </div>
+                      <div className={styles.goalCardBottom}>
+                        <span className={styles.goalPct}>{goal.pct}% / {goal.targetPct}%</span>
+                        <span className={`${styles.goalDays} ${overdue && !met ? styles.goalDaysOverdue : ''}`}>
+                          {met ? '✓ Goal met!' : overdue ? `${Math.abs(goal.daysLeft)}d overdue` : `${goal.daysLeft}d left`}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <GoalForm isOpen={goalFormOpen} onClose={() => setGoalFormOpen(false)} onSubmit={addGoal} />
+
+          {/* Upcoming Shifts */}
+          <section className={styles.section} style={{ marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h2 className={styles.sectionTitle}>📅 Upcoming Shifts</h2>
+              <Link to="/planner" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-primary)', fontWeight: 600 }}>
+                View Planner →
+              </Link>
+            </div>
+            {upcomingShifts.length === 0 ? (
+              <p className={styles.empty}>
+                No shifts scheduled.{' '}
+                <Link to="/planner" className={styles.emptyLink}>Go to Planner</Link> to schedule training.
+              </p>
+            ) : (
+              <ul className={styles.activityList}>
+                {upcomingShifts.map(s => {
+                  const timeStr = s.scheduledTime
+                    ? ` · ${(() => { const [h,m] = s.scheduledTime.split(':').map(Number); const ampm = h>=12?'PM':'AM'; return `${h%12||12}:${String(m).padStart(2,'0')} ${ampm}`; })()}`
+                    : '';
+                  return (
+                    <li key={s.id} className={styles.activityItem}>
+                      <span className={styles.activityDate}>{s.scheduledDate}</span>
+                      <span className={styles.activityName}>{s.traineeName}</span>
+                      <span className={styles.activitySep}>→</span>
+                      <span className={styles.activityPos}>{s.positionName}{timeStr}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* Overdue Details */}
+          {overdueDetails.length > 0 && (
+            <section className={styles.section} style={{ marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h2 className={styles.sectionTitle}>🚨 Overdue ({overdueDetails.length})</h2>
+                <Link to="/matrix" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-primary)', fontWeight: 600 }}>
+                  View Matrix →
+                </Link>
+              </div>
+              <ul className={styles.overdueList}>
+                {overdueDetails.map(({ trainee, position, daysOverdue }) => (
+                  <li key={`${trainee.id}::${position.id}`} className={styles.overdueItem}>
+                    <span className={styles.overdueIndicator} />
+                    <span className={styles.activityName}>{trainee.name}</span>
+                    <span className={styles.activitySep}>→</span>
+                    <span className={styles.activityPos}>{position.name}</span>
+                    <span className={styles.overdueDays}>{daysOverdue}d overdue</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           <div className={styles.columns}>

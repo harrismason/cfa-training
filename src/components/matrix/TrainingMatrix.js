@@ -1,9 +1,9 @@
 import MatrixCell from './MatrixCell';
 import EmptyState from '../shared/EmptyState';
-import { STATUS } from '../../constants/theme';
+import { STATUS, ROLE_COLORS } from '../../constants/theme';
 import styles from './TrainingMatrix.module.css';
 
-export default function TrainingMatrix({ trainees, positions, recordMap, shifts, deriveStatus, getCompletedShiftCount, traineeCompletionMap, onCellClick }) {
+export default function TrainingMatrix({ trainees, positions, recordMap, shifts, deriveStatus, getCompletedShiftCount, getPracticeShiftCount, traineeCompletionMap, onCellClick, onTraineeClick }) {
   function getRecord(traineeId, positionId) {
     return recordMap.get(`${traineeId}::${positionId}`) || null;
   }
@@ -58,10 +58,19 @@ export default function TrainingMatrix({ trainees, positions, recordMap, shifts,
             const completionPct = traineeCompletionMap ? (traineeCompletionMap.get(trainee.id) ?? 0) : 0;
             return (
               <tr key={trainee.id} className={styles.row}>
-                <td className={`${styles.td} ${styles.nameCell}`}>
+                <td
+                  className={`${styles.td} ${styles.nameCell} ${onTraineeClick ? styles.nameCellClickable : ''}`}
+                  onClick={onTraineeClick ? () => onTraineeClick(trainee) : undefined}
+                >
                   <div className={styles.traineeInfo}>
-                    <div className={styles.avatar}>
-                      {trainee.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)}
+                    <div
+                      className={styles.avatar}
+                      style={{ backgroundColor: (ROLE_COLORS[trainee.role] || ROLE_COLORS['Team Member']).avatar }}
+                    >
+                      {trainee.photoUrl
+                        ? <img src={trainee.photoUrl} alt={trainee.name} className={styles.avatarImg} />
+                        : trainee.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
+                      }
                     </div>
                     <div className={styles.traineeDetails}>
                       <div className={styles.traineeName}>{trainee.name}</div>
@@ -79,6 +88,7 @@ export default function TrainingMatrix({ trainees, positions, recordMap, shifts,
                   const record = getRecord(trainee.id, pos.id);
                   const required = record?.requiredShifts ?? pos.requiredShifts ?? 3;
                   const completed = getCompletedShiftCount(trainee.id, pos.id);
+                  const practiceCount = getPracticeShiftCount ? getPracticeShiftCount(trainee.id, pos.id) : 0;
                   const status = deriveStatus(trainee.id, pos.id, required);
 
                   // Tag from record
@@ -102,6 +112,7 @@ export default function TrainingMatrix({ trainees, positions, recordMap, shifts,
                       trainee={trainee}
                       position={pos}
                       completedCount={completed}
+                      practiceCount={practiceCount}
                       requiredShifts={required}
                       status={status}
                       onCellClick={onCellClick}

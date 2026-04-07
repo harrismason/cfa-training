@@ -1,0 +1,180 @@
+.page {
+  min-height: 100vh;
+  background: #F8FAFC;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+.header {
+  background: #1E3A8A;
+  color: #fff;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logoWrap {
+  width: 52px;
+  height: 52px;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.875rem;
+}
+
+.logoLetter {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #1E3A8A;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.brandName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.brandSub {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.backLink {
+  display: block;
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.75rem 1.5rem 0;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+.backLink:hover { color: #1E3A8A; text-decoration: underline; }
+
+.body {
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  text-align: center;
+}
+
+.userHint {
+  font-size: 0.8rem;
+  color: #64748B;
+  text-align: center;
+  margin: 0;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.fieldHint {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  color: #0F172A;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #1E3A8A;
+}
+
+.inputError {
+  border-color: #C62828;
+  background: #FFF8F8;
+}
+
+.errorMsg {
+  font-size: 0.8rem;
+  color: #C62828;
+  margin: 0;
+}
+
+.submitBtn {
+  padding: 0.75rem 1.5rem;
+  background: #1E3A8A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  margin-top: 0.25rem;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1e3070;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .header {
+    padding: 1.5rem;
+  }
+
+  .body {
+    padding: 1.25rem 1rem;
+  }
+}

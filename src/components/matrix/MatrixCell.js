@@ -1,7 +1,7 @@
 import { STATUS, STATUS_LABELS } from '../../constants/theme';
 import styles from './MatrixCell.module.css';
 
-export default function MatrixCell({ trainee, position, completedCount, requiredShifts, status, onCellClick, tag, isOverdue }) {
+export default function MatrixCell({ trainee, position, completedCount, practiceCount, requiredShifts, status, onCellClick, tag, isOverdue }) {
   const allDone = status === STATUS.TRAINED;
   const needsRecert = status === STATUS.NEEDS_RECERT;
 
@@ -9,7 +9,7 @@ export default function MatrixCell({ trainee, position, completedCount, required
     <td
       className={`${styles.cell} ${styles[status]} ${isOverdue ? styles.overdue : ''}`}
       onClick={() => onCellClick(trainee, position)}
-      title={`${trainee.name} — ${position.name}: ${completedCount}/${requiredShifts} shifts (${STATUS_LABELS[status]})`}
+      title={`${trainee.name} — ${position.name}: ${completedCount}/${requiredShifts} training${practiceCount > 0 ? ` · ${practiceCount} practice` : ''} (${STATUS_LABELS[status]})`}
     >
       <div className={styles.indicator}>
         {allDone
@@ -19,6 +19,11 @@ export default function MatrixCell({ trainee, position, completedCount, required
             : <span className={styles.progress}>{completedCount}/{requiredShifts}</span>
         }
       </div>
+      {practiceCount > 0 && (
+        <span className={styles.practicePill} title={`${practiceCount} practice session${practiceCount !== 1 ? 's' : ''}`}>
+          {practiceCount}p
+        </span>
+      )}
       {tag && (
         <span
           className={`${styles.tagDot} ${styles[`tagDot_${tag}`]}`}

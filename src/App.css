@@ -1,10 +1,19 @@
 .appLayout {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   min-height: 100vh;
 }
 
 .appMain {
   flex: 1;
-  padding-top: var(--nav-height);
+  margin-left: 220px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Mobile: nav becomes an overlay drawer, content takes full width */
+@media (max-width: 768px) {
+  .appMain {
+    margin-left: 0;
+  }
 }

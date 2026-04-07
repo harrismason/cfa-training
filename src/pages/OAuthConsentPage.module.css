@@ -1,0 +1,268 @@
+/* ── Page shell ─────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  background: #F8FAFC;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.header {
+  /* Hardcoded — not var() — consent page must always look authoritative */
+  background: #1E3A8A;
+  color: #fff;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logoWrap {
+  width: 52px;
+  height: 52px;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.875rem;
+}
+
+.logoLetter {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #1E3A8A;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.brandName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.brandSub {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Body ───────────────────────────────────────────────── */
+.body {
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── App info box ───────────────────────────────────────── */
+.appInfoBox {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appInfoTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.appInfoIcon {
+  font-size: 0.9rem;
+}
+
+.appInfoDesc {
+  font-size: 0.9rem;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.scopeList {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.scopeItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #334155;
+}
+
+.scopeCheck {
+  color: #059669;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ── Field section ──────────────────────────────────────── */
+.fieldSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.fieldHint {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.storeInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  color: #0F172A;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.storeInput:focus {
+  border-color: #1E3A8A;
+}
+
+.storeInputError {
+  border-color: #C62828;
+  background: #FFF8F8;
+}
+
+.errorMsg {
+  font-size: 0.8rem;
+  color: #C62828;
+  margin: 0;
+}
+
+/* ── Actions ────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.denyBtn {
+  padding: 0.65rem 1.25rem;
+  background: none;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.denyBtn:hover:not(:disabled) {
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+.denyBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.allowBtn {
+  padding: 0.65rem 1.5rem;
+  background: #1E3A8A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.allowBtn:hover:not(:disabled) {
+  background: #1e3070;
+}
+
+.allowBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #F1F5F9;
+  font-size: 0.72rem;
+  color: #94A3B8;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .page {
+    padding: 1.5rem 0.75rem;
+    align-items: flex-start;
+  }
+
+  .header {
+    padding: 1.5rem;
+  }
+
+  .body {
+    padding: 1.25rem 1rem;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .allowBtn,
+  .denyBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

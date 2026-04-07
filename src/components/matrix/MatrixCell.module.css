@@ -63,6 +63,22 @@
   box-shadow: inset 3px 0 0 #E53935;
 }
 
+.practicePill {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #1565C0;
+  background: #E3F2FD;
+  border-radius: 999px;
+  padding: 0 0.3rem;
+  pointer-events: none;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
 .tagDot {
   position: absolute;
   top: 4px;

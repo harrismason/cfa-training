@@ -6,6 +6,7 @@ import MatrixLegend from '../components/matrix/MatrixLegend';
 import ShiftModal from '../components/matrix/ShiftModal';
 import InsightsPanel from '../components/matrix/InsightsPanel';
 import BulkAssignModal from '../components/matrix/BulkAssignModal';
+import TraineeReport from '../components/trainees/TraineeReport';
 import Button from '../components/shared/Button';
 import { STATUS, CATEGORIES } from '../constants/theme';
 import styles from './MatrixPage.module.css';
@@ -16,21 +17,114 @@ export default function MatrixPage() {
   const {
     trainees, positions, records, recordMap, shifts,
     upsertRecord, upsertShift, getShiftsForRecord,
-    deriveStatus, getCompletedShiftCount,
+    deriveStatus, getCompletedShiftCount, getPracticeShiftCount,
   } = useAppContext();
 
+  // Basic filters
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(ALL);
+
+  // Advanced filters
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(new Set()); // empty = show all
+  const [tagFilter, setTagFilter] = useState(ALL);   // All | needs_training | practice_only | unassigned
+  const [trainerFilter, setTrainerFilter] = useState('');  // trainerId or ''
+  const [sortMode, setSortMode] = useState('name');  // name | pct | status
+  const [hideFullyTrained, setHideFullyTrained] = useState(false);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTrainee, setSelectedTrainee] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [insightsOpen, setInsightsOpen] = useState(true);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [reportTrainee, setReportTrainee] = useState(null);
 
-  const filteredTrainees = useMemo(
-    () => trainees.filter((t) => t.name.toLowerCase().includes(search.toLowerCase())),
-    [trainees, search]
+  // Trainers for filter dropdown
+  const trainers = useMemo(
+    () => trainees.filter((t) => t.role === 'Trainer' || t.role === 'Team Lead'),
+    [trainees]
   );
+
+  // Per-trainee completion % (needed for sort + hide fully trained)
+  const traineeCompletionPctMap = useMemo(() => {
+    const map = new Map();
+    trainees.forEach((t) => {
+      let trained = 0;
+      positions.forEach((p) => {
+        const rec = recordMap.get(`${t.id}::${p.id}`);
+        const required = rec?.requiredShifts ?? p.requiredShifts ?? 3;
+        if (deriveStatus(t.id, p.id, required) === STATUS.TRAINED) trained++;
+      });
+      map.set(t.id, positions.length > 0 ? Math.round((trained / positions.length) * 100) : 0);
+    });
+    return map;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainees, positions, recordMap, deriveStatus, shifts]);
+
+  const filteredTrainees = useMemo(() => {
+    let result = trainees.filter((t) =>
+      t.role !== 'Trainer' && t.role !== 'Team Lead' &&
+      t.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    // Tag filter: show trainees who have at least one record matching tag
+    if (tagFilter !== ALL) {
+      result = result.filter((t) => {
+        if (tagFilter === 'unassigned') {
+          return !records.some((r) => r.traineeId === t.id && r.tag);
+        }
+        return records.some((r) => r.traineeId === t.id && r.tag === tagFilter);
+      });
+    }
+
+    // Trainer filter: show trainees who have at least one shift with this trainer
+    if (trainerFilter) {
+      result = result.filter((t) =>
+        shifts.some((s) => s.traineeId === t.id && s.trainerId === trainerFilter)
+      );
+    }
+
+    // Status filter: show trainees who have at least one position matching any selected status
+    if (statusFilter.size > 0) {
+      result = result.filter((t) =>
+        positions.some((p) => {
+          const rec = recordMap.get(`${t.id}::${p.id}`);
+          const required = rec?.requiredShifts ?? p.requiredShifts ?? 3;
+          return statusFilter.has(deriveStatus(t.id, p.id, required));
+        })
+      );
+    }
+
+    // Hide fully trained
+    if (hideFullyTrained) {
+      result = result.filter((t) => (traineeCompletionPctMap.get(t.id) ?? 0) < 100);
+    }
+
+    // Sort
+    if (sortMode === 'pct') {
+      result = [...result].sort((a, b) => (traineeCompletionPctMap.get(b.id) ?? 0) - (traineeCompletionPctMap.get(a.id) ?? 0));
+    } else if (sortMode === 'status') {
+      const statusOrder = { [STATUS.IN_PROGRESS]: 0, [STATUS.NEEDS_RECERT]: 1, [STATUS.NOT_STARTED]: 2, [STATUS.TRAINED]: 3 };
+      result = [...result].sort((a, b) => {
+        const aMin = Math.min(...positions.map((p) => {
+          const rec = recordMap.get(`${a.id}::${p.id}`);
+          const req = rec?.requiredShifts ?? p.requiredShifts ?? 3;
+          return statusOrder[deriveStatus(a.id, p.id, req)] ?? 99;
+        }));
+        const bMin = Math.min(...positions.map((p) => {
+          const rec = recordMap.get(`${b.id}::${p.id}`);
+          const req = rec?.requiredShifts ?? p.requiredShifts ?? 3;
+          return statusOrder[deriveStatus(b.id, p.id, req)] ?? 99;
+        }));
+        return aMin - bMin;
+      });
+    } else {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return result;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainees, search, tagFilter, trainerFilter, statusFilter, hideFullyTrained, sortMode, records, shifts, positions, recordMap, deriveStatus, traineeCompletionPctMap]);
 
   const filteredPositions = useMemo(
     () => categoryFilter === ALL ? positions : positions.filter((p) => p.category === categoryFilter),
@@ -102,10 +196,40 @@ export default function MatrixPage() {
     return map;
   }, [traineeStats]);
 
+  // Count active advanced filters
+  const activeFilterCount = [
+    statusFilter.size > 0,
+    tagFilter !== ALL,
+    !!trainerFilter,
+    hideFullyTrained,
+    sortMode !== 'name',
+  ].filter(Boolean).length;
+
+  function toggleStatusFilter(status) {
+    setStatusFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(status)) next.delete(status);
+      else next.add(status);
+      return next;
+    });
+  }
+
+  function clearAdvancedFilters() {
+    setStatusFilter(new Set());
+    setTagFilter(ALL);
+    setTrainerFilter('');
+    setHideFullyTrained(false);
+    setSortMode('name');
+  }
+
   function handleCellClick(trainee, position) {
     setSelectedTrainee(trainee);
     setSelectedPosition(position);
     setModalOpen(true);
+  }
+
+  function handleTraineeClick(trainee) {
+    setReportTrainee(trainee);
   }
 
   function handleUpsertShift(traineeId, positionId, shiftNumber, fields) {
@@ -148,6 +272,13 @@ export default function MatrixPage() {
     ? recordMap.get(`${selectedTrainee.id}::${selectedPosition.id}`) || null
     : null;
 
+  const STATUS_FILTER_OPTIONS = [
+    { value: STATUS.NOT_STARTED, label: 'Not Started', color: '#9E9E9E' },
+    { value: STATUS.IN_PROGRESS, label: 'In Progress', color: '#F57C00' },
+    { value: STATUS.TRAINED,     label: 'Trained',     color: '#2E7D32' },
+    { value: STATUS.NEEDS_RECERT,label: 'Needs Recert',color: '#7B1FA2' },
+  ];
+
   return (
     <PageContainer className={styles.container}>
       <div className={styles.pageHeader}>
@@ -179,6 +310,7 @@ export default function MatrixPage() {
         </div>
       </div>
 
+      {/* Search + category */}
       <div className={styles.filters}>
         <input
           className={styles.searchInput}
@@ -198,7 +330,99 @@ export default function MatrixPage() {
             </button>
           ))}
         </div>
+        <button
+          className={`${styles.advancedToggle} ${showAdvanced ? styles.advancedToggleOpen : ''}`}
+          onClick={() => setShowAdvanced((o) => !o)}
+        >
+          Filters {activeFilterCount > 0 && <span className={styles.filterBadge}>{activeFilterCount}</span>}
+          <span className={styles.chevron}>{showAdvanced ? '▲' : '▼'}</span>
+        </button>
       </div>
+
+      {/* Advanced filter panel */}
+      {showAdvanced && (
+        <div className={styles.advancedPanel}>
+          <div className={styles.advancedRow}>
+            <span className={styles.advancedLabel}>Status:</span>
+            <div className={styles.statusChips}>
+              {STATUS_FILTER_OPTIONS.map(({ value, label, color }) => (
+                <button
+                  key={value}
+                  className={`${styles.statusChip} ${statusFilter.has(value) ? styles.statusChipActive : ''}`}
+                  style={statusFilter.has(value) ? { background: color, borderColor: color, color: '#fff' } : { borderColor: color, color: color }}
+                  onClick={() => toggleStatusFilter(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.advancedRow}>
+            <span className={styles.advancedLabel}>Tag:</span>
+            <div className={styles.tagChips}>
+              {[
+                { val: ALL, label: 'All' },
+                { val: 'needs_training', label: 'Needs Training' },
+                { val: 'practice_only', label: 'Practice Only' },
+                { val: 'unassigned', label: 'Unassigned' },
+              ].map(({ val, label }) => (
+                <button
+                  key={val}
+                  className={`${styles.tagChip} ${tagFilter === val ? styles.tagChipActive : ''}`}
+                  onClick={() => setTagFilter(val)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.advancedRow}>
+            <span className={styles.advancedLabel}>Trainer:</span>
+            <select
+              className={styles.advancedSelect}
+              value={trainerFilter}
+              onChange={(e) => setTrainerFilter(e.target.value)}
+            >
+              <option value="">Any Trainer</option>
+              {trainers.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+
+            <span className={styles.advancedLabel} style={{ marginLeft: '1rem' }}>Sort:</span>
+            <select
+              className={styles.advancedSelect}
+              value={sortMode}
+              onChange={(e) => setSortMode(e.target.value)}
+            >
+              <option value="name">Name A–Z</option>
+              <option value="pct">Completion % ↓</option>
+              <option value="status">Needs Attention First</option>
+            </select>
+
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={hideFullyTrained}
+                onChange={(e) => setHideFullyTrained(e.target.checked)}
+              />
+              Hide fully trained
+            </label>
+
+            {activeFilterCount > 0 && (
+              <button className={styles.clearFilters} onClick={clearAdvancedFilters}>
+                Clear all filters
+              </button>
+            )}
+          </div>
+
+          <div className={styles.filterResults}>
+            Showing {filteredTrainees.length} of {trainees.length} trainees
+          </div>
+        </div>
+      )}
 
       <InsightsPanel
         isOpen={insightsOpen}
@@ -218,8 +442,10 @@ export default function MatrixPage() {
         shifts={shifts}
         deriveStatus={deriveStatus}
         getCompletedShiftCount={getCompletedShiftCount}
+        getPracticeShiftCount={getPracticeShiftCount}
         traineeCompletionMap={traineeCompletionMap}
         onCellClick={handleCellClick}
+        onTraineeClick={handleTraineeClick}
       />
 
       <ShiftModal
@@ -240,6 +466,12 @@ export default function MatrixPage() {
         trainees={trainees}
         positions={positions}
         onBulkAssign={handleBulkAssign}
+      />
+
+      <TraineeReport
+        isOpen={!!reportTrainee}
+        onClose={() => setReportTrainee(null)}
+        trainee={reportTrainee}
       />
     </PageContainer>
   );
